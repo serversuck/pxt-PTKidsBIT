@@ -1,60 +1,56 @@
 /**
  * Functions are mapped to blocks using various macros
+ * 
  * in comments starting with %. The most important macro
+ * 
  * is "block", and it specifies that a block should be
+ * 
  * generated for an **exported** function.
  */
-
-let Sensor_PIN: number[] = []
-let Sensor_Left: number[] = []
-let Sensor_Right: number[] = []
-let Num_Sensor = 0
-let LED_PIN = 0
-
-let Color_Line: number[] = []
-let Color_Background: number[] = []
-let Color_Line_Left: number[] = []
-let Color_Background_Left: number[] = []
-let Color_Line_Right: number[] = []
-let Color_Background_Right: number[] = []
-let Line_Mode = 0
-let Last_Position = 0
-let error = 0
-let P = 0
-let D = 0
-let previous_error = 0
-let PD_Value = 0
-let left_motor_speed = 0
 let right_motor_speed = 0
-
+let left_motor_speed = 0
+let PD_Value = 0
+let previous_error = 0
+let D = 0
+let P = 0
+let error = 0
+let Last_Position = 0
+let Line_Mode = 0
+let Color_Background_Right: number[] = []
+let Color_Line_Right: number[] = []
+let Color_Background_Left: number[] = []
+let Color_Line_Left: number[] = []
+let Color_Background: number[] = []
+let Color_Line: number[] = []
+let LED_PIN = 0
+let Num_Sensor = 0
+let Sensor_Right: number[] = []
+let Sensor_Left: number[] = []
+let Sensor_PIN: number[] = []
 enum Motor_Write {
     //% block="1"
     Motor_1,
     //% block="2"
     Motor_2
 }
-
 enum _Turn {
     //% block="Left"
     Left,
     //% block="Right"
     Right
 }
-
 enum _Spin {
     //% block="Left"
     Left,
     //% block="Right"
     Right
 }
-
 enum Servo_Write {
     //% block="P8"
     P8,
     //% block="P12"
     P12
 }
-
 enum ADC_Read {
     //% block="0"
     ADC0 = 0x84,
@@ -73,7 +69,6 @@ enum ADC_Read {
     //% block="7"
     ADC7 = 0xF4
 }
-
 enum Find_Line {
     //% block="Left"
     Left,
@@ -82,7 +77,6 @@ enum Find_Line {
     //% block="Right"
     Right
 }
-
 enum LED_Pin {
     //% block="Disable"
     Disable,
@@ -95,15 +89,12 @@ enum LED_Pin {
     //% block="P12"
     P12
 }
-
 enum Turn_Line {
     //% block="Left"
     Left,
     //% block="Right"
     Right
 }
-
-//% color="#00EAA3" icon="\u2B9A"
 namespace PTKidsBIT {
 	//% group="Motor Control"
     /**
@@ -272,7 +263,7 @@ namespace PTKidsBIT {
             ]
         let on_line = 0
         let position = pins.map(sensor, 1, Num_Sensor, 0, (Num_Sensor - 1) * 1000)
-        let error = 0
+        let error2 = 0
         let timer = 0
         let motor_speed = 0
         let motor_slow = Math.round(speed / 5)
@@ -303,8 +294,8 @@ namespace PTKidsBIT {
                 break
             }
             else {
-                error = timer - (control.millis() - time)
-                motor_speed = error
+                error2 = timer - (control.millis() - time)
+                motor_speed = error2
 
                 if (motor_speed > 100) {
                     motor_speed = 100
@@ -333,8 +324,8 @@ namespace PTKidsBIT {
     //% time.shadow="timePicker"
     //% time.defl=200
     export function ForwardTIME(time: number, min_speed: number, max_speed: number, kp: number, kd: number) {
-        let timer = control.millis()
-        while (control.millis() - timer < time) {
+        let timer2 = control.millis()
+        while (control.millis() - timer2 < time) {
             error = GETPosition() - (((Num_Sensor - 1) * 1000) / 2)
             P = error
             D = error - previous_error
@@ -373,7 +364,7 @@ namespace PTKidsBIT {
     //% break_time.shadow="timePicker"
     //% break_time.defl=20
     export function ForwardLINE(find: Find_Line, min_speed: number, max_speed: number, break_time: number, kp: number, kd: number) {
-        let ADC_PIN = [
+        let ADC_PIN2 = [
                 ADC_Read.ADC0, 
                 ADC_Read.ADC1,
                 ADC_Read.ADC2, 
@@ -388,32 +379,32 @@ namespace PTKidsBIT {
         let last_left = 0
         let last_right = 0
         let line_state = 0
-        let on_line = 0
+        let on_line2 = 0
         let on_line_LR = 0
 
         while (1) {
             found_left = 0
             found_right = 0
-            on_line = 0
+            on_line2 = 0
             on_line_LR = 0
-            for (let i = 0; i < Sensor_PIN.length; i ++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 800) {
-                    on_line += 1;
+            for (let j = 0; j < Sensor_PIN.length; j ++) {
+                if ((pins.map(ADCRead(ADC_PIN2[Sensor_PIN[j]]), Color_Line[j], Color_Background[j], 1000, 0)) >= 800) {
+                    on_line2 += 1;
                 }
             }
 
-            for (let i = 0; i < Sensor_Left.length; i ++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 800) {
+            for (let k = 0; k < Sensor_Left.length; k ++) {
+                if ((pins.map(ADCRead(ADC_PIN2[Sensor_Left[k]]), Color_Line_Left[k], Color_Background[k], 1000, 0)) >= 800) {
                     on_line_LR += 1;
                 }
             }
 
-            for (let i = 0; i < Sensor_Right.length; i ++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 800) {
+            for (let l = 0; l < Sensor_Right.length; l ++) {
+                if ((pins.map(ADCRead(ADC_PIN2[Sensor_Right[l]]), Color_Line_Right[l], Color_Background[l], 1000, 0)) >= 800) {
                     on_line_LR += 1;
                 }
             }
-            if (on_line > 0 && on_line <= 2 && on_line_LR == 0) {
+            if (on_line2 > 0 && on_line2 <= 2 && on_line_LR == 0) {
                 error = GETPosition() - (((Num_Sensor - 1) * 1000) / 2)
                 P = error
                 D = error - previous_error
@@ -444,14 +435,14 @@ namespace PTKidsBIT {
             }
 
             if (line_state == 0) {
-                for (let i = 0; i < Sensor_Left.length; i ++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 800) {
+                for (let m = 0; m < Sensor_Left.length; m ++) {
+                    if ((pins.map(ADCRead(ADC_PIN2[Sensor_Left[m]]), Color_Line_Left[m], Color_Background[m], 1000, 0)) >= 800) {
                         found_left += 1;
                     }
                 }
 
-                for (let i = 0; i < Sensor_Right.length; i ++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 800) {
+                for (let n = 0; n < Sensor_Right.length; n ++) {
+                    if ((pins.map(ADCRead(ADC_PIN2[Sensor_Right[n]]), Color_Line_Right[n], Color_Background[n], 1000, 0)) >= 800) {
                         found_right += 1;
                     }
                 }
@@ -461,8 +452,8 @@ namespace PTKidsBIT {
                 }
             }
             else if (line_state == 1) {
-                for (let i = 0; i < Sensor_Left.length; i ++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 800) {
+                for (let o = 0; o < Sensor_Left.length; o ++) {
+                    if ((pins.map(ADCRead(ADC_PIN2[Sensor_Left[o]]), Color_Line_Left[o], Color_Background[o], 1000, 0)) >= 800) {
                         found_left += 1;
                         if (last_left != Sensor_Left.length) {
                             last_left = found_left
@@ -470,8 +461,8 @@ namespace PTKidsBIT {
                     }
                 }
 
-                for (let i = 0; i < Sensor_Right.length; i ++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 800) {
+                for (let p = 0; p < Sensor_Right.length; p ++) {
+                    if ((pins.map(ADCRead(ADC_PIN2[Sensor_Right[p]]), Color_Line_Right[p], Color_Background[p], 1000, 0)) >= 800) {
                         found_right += 1;
                         if (last_right != Sensor_Right.length) {
                             last_right = found_right
@@ -534,7 +525,7 @@ namespace PTKidsBIT {
      */
     //% block="GETPosition"
     export function GETPosition() {
-        let ADC_PIN = [
+        let ADC_PIN3 = [
                 ADC_Read.ADC0, 
                 ADC_Read.ADC1,
                 ADC_Read.ADC2, 
@@ -548,10 +539,10 @@ namespace PTKidsBIT {
         let Sum_Value = 0
         let ON_Line = 0
 
-        for (let i = 0; i < Num_Sensor; i ++) {
+        for (let q = 0; q < Num_Sensor; q ++) {
             let Value_Sensor = 0;
             if (Line_Mode == 0) {
-                Value_Sensor = pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)
+                Value_Sensor = pins.map(ADCRead(ADC_PIN3[Sensor_PIN[q]]), Color_Line[q], Color_Background[q], 1000, 0)
                 if (Value_Sensor < 0) {
                     Value_Sensor = 0
                 }
@@ -560,7 +551,7 @@ namespace PTKidsBIT {
                 }
             }
             else {
-                Value_Sensor = pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Background[i], Color_Line[i], 1000, 0)
+                Value_Sensor = pins.map(ADCRead(ADC_PIN3[Sensor_PIN[q]]), Color_Background[q], Color_Line[q], 1000, 0)
                 if (Value_Sensor < 0) {
                     Value_Sensor = 0
                 }
@@ -570,7 +561,7 @@ namespace PTKidsBIT {
             }
             if (Value_Sensor > 200) {
                 ON_Line = 1;
-                Average += Value_Sensor * (i * 1000)
+                Average += Value_Sensor * (q * 1000)
                 Sum_Value += Value_Sensor
             }
         }
@@ -592,7 +583,7 @@ namespace PTKidsBIT {
      */
     //% block="LINECalibrate"
     export function LINECalibrate():void {
-        let ADC_PIN = [ 
+        let ADC_PIN4 = [ 
                 ADC_Read.ADC0,
                 ADC_Read.ADC1,
                 ADC_Read.ADC2,
@@ -612,52 +603,52 @@ namespace PTKidsBIT {
         ////Calibrate Follower Line
         while (!input.buttonIsPressed(Button.A));
         music.playTone(784, music.beat(BeatFraction.Quarter))
-        for (let i = 0; i < 20; i ++) {
-            for (let j = 0; j < Num_Sensor; j ++) {
-                Line_Cal[j] += ADCRead(ADC_PIN[Sensor_PIN[j]])
+        for (let r = 0; r < 20; r ++) {
+            for (let s = 0; s < Num_Sensor; s ++) {
+                Line_Cal[s] += ADCRead(ADC_PIN4[Sensor_PIN[s]])
             }
             basic.pause(50)
         }
-        for (let i = 0; i < Num_Sensor; i ++) {
-            Line_Cal[i] = Line_Cal[i] / 20
-            Color_Line[i] = Line_Cal[i]
+        for (let t = 0; t < Num_Sensor; t ++) {
+            Line_Cal[t] = Line_Cal[t] / 20
+            Color_Line[t] = Line_Cal[t]
         }
 
         music.playTone(784, music.beat(BeatFraction.Quarter))
         ////Calibrate LR Line
         while (!input.buttonIsPressed(Button.A));
         music.playTone(784, music.beat(BeatFraction.Quarter))
-        for (let i = 0; i < 20; i ++) {
-            for (let j = 0; j < Sensor_Left.length; j ++) {
-                Line_Cal_L[j] += ADCRead(ADC_PIN[Sensor_Left[j]])
+        for (let u = 0; u < 20; u ++) {
+            for (let v = 0; v < Sensor_Left.length; v ++) {
+                Line_Cal_L[v] += ADCRead(ADC_PIN4[Sensor_Left[v]])
             }
-            for (let j = 0; j < Sensor_Right.length; j ++) {
-                Line_Cal_R[j] += ADCRead(ADC_PIN[Sensor_Right[j]])
+            for (let w = 0; w < Sensor_Right.length; w ++) {
+                Line_Cal_R[w] += ADCRead(ADC_PIN4[Sensor_Right[w]])
             }
             basic.pause(50)
         }
-        for (let i = 0; i < Sensor_Left.length; i ++) {
-            Line_Cal_L[i] = Line_Cal_L[i] / 20
-            Color_Line_Left[i] = Line_Cal_L[i]
+        for (let a = 0; a < Sensor_Left.length; a ++) {
+            Line_Cal_L[a] = Line_Cal_L[a] / 20
+            Color_Line_Left[a] = Line_Cal_L[a]
         }
-        for (let i = 0; i < Sensor_Right.length; i ++) {
-            Line_Cal_R[i] = Line_Cal_R[i] / 20
-            Color_Line_Right[i] = Line_Cal_R[i]
+        for (let b = 0; b < Sensor_Right.length; b ++) {
+            Line_Cal_R[b] = Line_Cal_R[b] / 20
+            Color_Line_Right[b] = Line_Cal_R[b]
         }
 
         music.playTone(784, music.beat(BeatFraction.Quarter))
         ////Calibrate Background
         while (!input.buttonIsPressed(Button.A));
         music.playTone(784, music.beat(BeatFraction.Quarter))
-        for (let i = 0; i < 20; i ++) {
-            for (let j = 0; j < Num_Sensor; j ++) {
-                Background_Cal[j] += ADCRead(ADC_PIN[Sensor_PIN[j]])
+        for (let c = 0; c < 20; c ++) {
+            for (let d = 0; d < Num_Sensor; d ++) {
+                Background_Cal[d] += ADCRead(ADC_PIN4[Sensor_PIN[d]])
             }
             basic.pause(50)
         }
-        for (let i = 0; i < Num_Sensor; i ++) {
-            Background_Cal[i] = Background_Cal[i] / 20
-            Color_Background[i] = Background_Cal[i]
+        for (let e = 0; e < Num_Sensor; e ++) {
+            Background_Cal[e] = Background_Cal[e] / 20
+            Color_Background[e] = Background_Cal[e]
         }
         music.playTone(784, music.beat(BeatFraction.Quarter))
         music.playTone(587, music.beat(BeatFraction.Quarter))
