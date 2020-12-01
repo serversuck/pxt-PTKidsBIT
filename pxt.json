@@ -9,7 +9,6 @@
     },
     "files": [
         "README.md",
-        "PTKidsBIT.blocks",
         "PTKidsBIT.ts"
     ],
     "testFiles": [
