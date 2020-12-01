@@ -1,31 +1,107 @@
+# PTKidsBIT block package for PT-BOT KidsBIT kit
 
-> Open this page at [https://ibuilds.github.io/pxt-ptkidsbit/](https://ibuilds.github.io/pxt-ptkidsbit/)
+powered by micro:bit
 
-## Use as Extension
+![PTKidsBIT](https://raw.githubusercontent.com/iBuilds/pxt-PTKidsBIT/master/big_icon.png)
 
-This repository can be added as an **extension** in MakeCode.
+## micro:bit Pin Assignment
 
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/ibuilds/pxt-ptkidsbit** and import
-
-## Edit this project ![Build status badge](https://github.com/ibuilds/pxt-ptkidsbit/workflows/MakeCode/badge.svg)
-
-To edit this repository in MakeCode.
-
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/ibuilds/pxt-ptkidsbit** and click import
+* ``P0``  -- Connected to Buzzer
+* ``P1``  -- Digital Input/Output and Analog Input/Output
+* ``P2``  -- Digital Input/Output and Analog Input/Output
+* ``P8``  -- Digital Input/Output, Analog Input/Output and Servo1
+* ``P12`` -- Digital Input/Output, Analog Input/Output and Servo2
+* ``P13`` -- DigitalWrite Pin for DC motor control direction 1
+* ``P14`` -- AnalogWrite Pin for DC motor speed control 1
+* ``P15`` -- DigitalWrite Pin for DC motor control direction 2
+* ``P16`` -- AnalogWrite Pin for DC motor speed control 2
+* ``P19`` -- SCL connected to I2C-based 12-bit ADC chip (ADS7828)
+* ``P20`` -- SDA connected to I2C-based 12-bit ADC chip (ADS7828)
 
 ## Blocks preview
 
-This image shows the blocks code from the last commit in master.
-This image may take a few minutes to refresh.
+### motorWrite Block
 
-![A rendered view of the blocks](https://github.com/ibuilds/pxt-ptkidsbit/raw/master/.github/makecode/blocks.png)
+Use PTKidsBIT's motorWrite block to drives 1 motor forward and backward. The speed motor is adjustable between 0 to 100.
 
-#### Metadata (used for search, rendering)
+* The motor must be select either `1` or `2`
+* Speed is an integer value between `-100` to `100` (Greater than 0 is forward, less than 0 is backward)
+
+```blocks
+PTKidsBIT.motorWrite(Motor_Write.Motor_1, 50)
+```
+
+### motorGo Block
+
+Use PTKidsBIT's motorGo block to drives 2 motor forward and backward. The speed motor is adjustable between 0 to 100.
+
+* The motor1 must be select -100 to 100 (Greater than 0 is forward, less than 0 is backward)
+* The motor2 must be select -100 to 100 (Greater than 0 is forward, less than 0 is backward)
+
+```blocks
+PTKidsBIT.motorGo(50, -50)
+```
+
+### Turn Block
+
+Use PTKidsBIT's Turn block to control the robot movment by turning. The one motor will stop, another one is moving.
+
+* The Turn must be select either `Left` or `Right`
+* Speed is an integer value between `0` to `100`
+
+```blocks
+PTKidsBIT.Turn(_Turn.Left, 50)
+```
+
+### Spin Block
+
+Use PTKidsBIT's Spin block to control both motors separately. For example, choose one motor spin with forward direction another one spin with backward direction.
+
+* The Spin must be select either `Left` or `Right`
+* Speed is an integer value between `0` to `100`
+
+```blocks
+PTKidsBIT.Spin(_Spin.Left, -50)
+```
+
+### Motor Stop Block 
+
+Use PTKidsBIT's Motor Stop block is used to stop both motors.
+
+```blocks
+PTKidsBIT.motorStop()
+```
+
+### servoWrite Block
+
+Use PTKidsBIT's servoWrite block for control the servo's moving degree from 0 to 180
+
+* The Servo must be select either `P8` or `P12`
+* Degree is an integer value between `0 - 180`
+
+```blocks
+PTKidsBIT.servoWrite(Servo_Write.P8, 180)
+```
+
+### ADCRead Block
+Use PTKidsBIT's ADCRead block for read analog from ADC channels. The resolution is 0 to 4095. PTKidsBIT have 8 channel ADC.
+
+* Select ADCRead from `ADC0` to `ADC7` for reading the analog sensor.
+
+For example, read the analog value from ADC0 and displays it on the micro: bit screen.
+
+```blocks
+basic.showNumber(PTKidsBIT.ADCRead(ADC_Read.ADC0))
+```
+
+## Supported targets
 
 * for PXT/microbit
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+
+## License
+
+MIT
+
+```package
+PTKidsBIT=github:iBuilds/pxt-ptkidsbit
+```
