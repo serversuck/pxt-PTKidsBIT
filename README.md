@@ -4,7 +4,7 @@ powered by micro:bit
 
 ![PTKidsBIT](https://raw.githubusercontent.com/iBuilds/pxt-PTKidsBIT/master/big_icon.png)
 
-The package adds support board from [PT-BOT](https://web.facebook.com/LPRobotics).
+The package adds support PTKidsBIT board from [PT-BOT](https://web.facebook.com/LPRobotics).
 
 ## micro:bit Pin Assignment
 
