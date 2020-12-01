@@ -297,7 +297,7 @@ namespace PTKidsBIT {
         }
         timer = control.millis()
         while (1) {
-            if ((Math.abs(position - GETPosition())) <= 100) {
+            if ((Math.abs(position - GETPosition())) <= 300) {
                 basic.pause(break_delay)
                 motorStop()
                 break
