@@ -88,12 +88,29 @@ PTKidsBIT.servoWrite(Servo_Write.P8, 180)
 ### ADCRead Block
 Use PTKidsBIT's ADCRead block for read analog from ADC channels. The resolution is 0 to 4095. PTKidsBIT have 8 channel ADC.
 
-* Select ADCRead from `ADC0` to `ADC7` for reading the analog sensor.
+* Select ADCRead from `0` to `7` for reading the analog sensor.
 
 For example, read the analog value from ADC0 and displays it on the micro: bit screen.
 
 ```blocks
 basic.showNumber(PTKidsBIT.ADCRead(ADC_Read.ADC0))
+```
+
+### LINESensorSET Block
+Use PTKidsBIT's LINESensorSET block for select the ADC channel connected to the sensor.
+
+* LINESensorSET is ADC channels between `0` to `7` for line follower sensor.
+* Sensor Left is ADC channels between `0` to `7` for sensor left.
+* Sensor Right is ADC channels between `0` to `7` for sensor right.
+* The ON OFF Sensor, `Pin` or `Disable` must be selected for the sensor on or off.
+
+```blocks
+PTKidsBIT.LINESensorSET(
+[1, 0, 7, 6],
+[2],
+[5],
+LED_Pin.Disable
+)
 ```
 
 ## Supported targets
