@@ -113,6 +113,17 @@ PTKidsBIT.LINESensorSET(
 )
 ```
 
+### LINECalibrate Block
+Use PTKidsBIT's LINECalibrate block for calibration line follower sensor, left sensor and right sensor. The calibration process is as follows.
+
+* Place the line follower sensor on the line, press Button A once and wait until the buzzer sounds.
+* Place left and right sensor on the line, press Button A once and wait until the buzzer sounds.
+* Place all sensor on the floor, press Button A once and wait until the buzzer sounds.
+
+```blocks
+PTKidsBIT.LINECalibrate()
+```
+
 ## Supported targets
 
 * for PXT/microbit
