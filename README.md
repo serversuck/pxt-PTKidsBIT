@@ -106,10 +106,10 @@ Use PTKidsBIT's LINESensorSET block for select the ADC channel connected to the 
 
 ```blocks
 PTKidsBIT.LINESensorSET(
-[1, 0, 7, 6],
-[2],
-[5],
-LED_Pin.Disable
+    [1, 0, 7, 6],
+    [2],
+    [5],
+    LED_Pin.Disable
 )
 ```
 
