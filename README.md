@@ -93,7 +93,9 @@ Use PTKidsBIT's ADCRead block for read analog from ADC channels. The resolution 
 For example, read the analog value from ADC0 and displays it on the micro: bit screen.
 
 ```blocks
-basic.showNumber(PTKidsBIT.ADCRead(ADC_Read.ADC0))
+basic.forever(function () {
+    basic.showNumber(PTKidsBIT.ADCRead(ADC_Read.ADC0))
+})
 ```
 
 ### LINESensorSET Block
