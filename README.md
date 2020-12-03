@@ -86,6 +86,7 @@ PTKidsBIT.servoWrite(Servo_Write.P8, 180)
 ```
 
 ### ADCRead Block
+
 Use PTKidsBIT's ADCRead block for read analog from ADC channels. The resolution is 0 to 4095. PTKidsBIT have 8 channel ADC.
 
 * Select ADCRead from `0` to `7` for reading the analog sensor.
@@ -99,6 +100,7 @@ basic.forever(function () {
 ```
 
 ### LINESensorSET Block
+
 Use PTKidsBIT's LINESensorSET block for select the ADC channel connected to the sensor.
 
 * LINESensorSET is ADC channels between `0` to `7` for line follower sensor.
@@ -116,6 +118,7 @@ PTKidsBIT.LINESensorSET(
 ```
 
 ### LINECalibrate Block
+
 Use PTKidsBIT's LINECalibrate block for calibration line follower sensor, left sensor and right sensor. The calibration process is as follows.
 
 * Place the line follower sensor on the line, press Button A once and wait until the buzzer sounds.
@@ -165,6 +168,26 @@ PTKidsBIT.ForwardTIME(
     100,
     0.03,
     0.1
+)
+```
+
+### TurnLINE Block
+
+Use PTKidsBIT's TurnLINE block for the Robot to turn until it detects a line.
+
+* TurnLINE is direction to turn the robot. Select `Left` or `Right`
+* Speed is maximun speed between `0` to `100`
+* Sensor is the position of the sensor you want the robot to stop.
+* Fast Time is the time at the maximum robot speed before a line is detected.
+* Break Time is the time for the Motor to reverse to brake when the Robot stops.
+
+```blocks
+PTKidsBIT.TurnLINE(
+    Turn_Line.Left,
+    60,
+    2.5,
+    200,
+    0
 )
 ```
 
