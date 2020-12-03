@@ -148,6 +148,26 @@ PTKidsBIT.ForwardLINE(
 )
 ```
 
+### ForwardTIME Block
+
+Use PTKidsBIT's ForwardTIME blog for the robot to follow the line forward. When the time, the robot will stop. 
+
+* ForwardTIME is set time.
+* Min Speed is minimum speed between `0` to `100`
+* Max Speed is maximun speed between `0` to `100`
+* KP value for control the robot
+* KD value for control the robot
+
+```blocks
+PTKidsBIT.ForwardTIME(
+    200,
+    60,
+    100,
+    0.03,
+    0.1
+)
+```
+
 ## Supported targets
 
 * for PXT/microbit
