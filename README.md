@@ -126,6 +126,28 @@ Use PTKidsBIT's LINECalibrate block for calibration line follower sensor, left s
 PTKidsBIT.LINECalibrate()
 ```
 
+### ForwardLINE Block
+
+Use PTKidsBIT's ForwardLINE blog for the robot to follow the line forward. When the specified line is found, the robot will stop. 
+
+* ForwardFIND is the line to detect. Select `Left`, `Center` or `Right`
+* Min Speed is minimum speed between `0` to `100`
+* Max Speed is maximun speed between `0` to `100`
+* Break Time is the time for the Motor to reverse to brake when the Robot stops.
+* KP value for control the robot
+* KD value for control the robot
+
+```blocks
+PTKidsBIT.ForwardLINE(
+    Find_Line.Left,
+    30,
+    60,
+    0,
+    0.05,
+    0.1
+)
+```
+
 ## Supported targets
 
 * for PXT/microbit
