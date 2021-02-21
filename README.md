@@ -93,7 +93,7 @@ Use PTKidsBIT's WaitClick block for Wait for the command from the button.
 * Select `Pressed` or `Released`.
 
 ```blocks
-PTKidsBIT.waitClick(Button_Pin.P2, Button_Status.Pressed)
+PTKidsBIT.waitClick(Button_Pin.P1, Button_Status.Pressed)
 ```
 
 ### ADCRead Block
@@ -145,7 +145,7 @@ PTKidsBIT.LINESensorSET(
 
 Use PTKidsBIT's ForwardLINE blog for the robot to follow the line forward. When the specified line is found, the robot will stop. 
 
-* Direction is The direction in which the robot moves.
+* Direction is The direction in which the robot moves. Select `Forward` or `Backward`.
 * ForwardFIND is the line to detect. Select `Left`, `Center` or `Right`
 * Min Speed is minimum speed between `0` to `100`
 * Max Speed is maximun speed between `0` to `100`
@@ -169,7 +169,7 @@ PTKidsBIT.ForwardLINE(
 
 Use PTKidsBIT's ForwardTIME blog for the robot to follow the line forward. When the time, the robot will stop. 
 
-* Direction is The direction in which the robot moves.
+* Direction is The direction in which the robot moves. Select `Forward` or `Backward`.
 * ForwardTIME is set time.
 * Min Speed is minimum speed between `0` to `100`
 * Max Speed is maximun speed between `0` to `100`
