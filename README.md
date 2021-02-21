@@ -24,7 +24,7 @@ The package adds support [PTKidsBIT](http://www.ptbot-shop.com/product/28/pt-bot
 
 ### motorWrite Block
 
-Use PTKidsBIT's motorWrite block to drives 1 motor forward and backward. The speed motor is adjustable between 0 to 100.
+Use PTKidsBIT's MotorWrite block to drives 1 motor forward and backward. The speed motor is adjustable between 0 to 100.
 
 * The motor must be select either `1` or `2`
 * Speed is an integer value between `-100` to `100` (Greater than 0 is forward, less than 0 is backward)
@@ -85,18 +85,42 @@ Use PTKidsBIT's servoWrite block for control the servo's moving degree from 0 to
 PTKidsBIT.servoWrite(Servo_Write.P8, 180)
 ```
 
+### WaitClick Block
+
+Use PTKidsBIT's WaitClick block for Wait for the command from the button.
+
+* Select `Pin` for connecting to the button.
+* Select `Pressed` or `Released`.
+
+```blocks
+PTKidsBIT.waitClick(Button_Pin.P2, Button_Status.Pressed)
+```
+
 ### ADCRead Block
 
 Use PTKidsBIT's ADCRead block for read analog from ADC channels. The resolution is 0 to 4095. PTKidsBIT have 8 channel ADC.
 
-* Select ADCRead from `0` to `7` for reading the analog sensor.
-
-For example, read the analog value from ADC0 and displays it on the micro: bit screen.
+* Select `Pin` from `0` to `7` for reading the analog sensor.
 
 ```blocks
 basic.forever(function () {
     basic.showNumber(PTKidsBIT.ADCRead(ADC_Read.ADC0))
 })
+```
+
+### SensorCalibrate Block
+
+Use PTKidsBIT's SensorCalibrate block for calibration line follower sensor, left sensor and right sensor.
+
+* Select ADC channels between `0` to `7` for calibrate sensor.
+
+The calibration process is as follows
+* Place the line follower sensor on the line, press Button A once and wait until the buzzer sounds.
+* Place left and right sensor on the line, press Button A once and wait until the buzzer sounds.
+* Place all sensor on the floor, press Button A once and wait until the buzzer sounds.
+
+```blocks
+PTKidsBIT.SensorCalibrate([1, 0, 7, 6])
 ```
 
 ### LINESensorSET Block
@@ -117,22 +141,11 @@ PTKidsBIT.LINESensorSET(
 )
 ```
 
-### LINECalibrate Block
-
-Use PTKidsBIT's LINECalibrate block for calibration line follower sensor, left sensor and right sensor. The calibration process is as follows.
-
-* Place the line follower sensor on the line, press Button A once and wait until the buzzer sounds.
-* Place left and right sensor on the line, press Button A once and wait until the buzzer sounds.
-* Place all sensor on the floor, press Button A once and wait until the buzzer sounds.
-
-```blocks
-PTKidsBIT.LINECalibrate()
-```
-
 ### ForwardLINE Block
 
 Use PTKidsBIT's ForwardLINE blog for the robot to follow the line forward. When the specified line is found, the robot will stop. 
 
+* Direction is The direction in which the robot moves.
 * ForwardFIND is the line to detect. Select `Left`, `Center` or `Right`
 * Min Speed is minimum speed between `0` to `100`
 * Max Speed is maximun speed between `0` to `100`
@@ -142,6 +155,7 @@ Use PTKidsBIT's ForwardLINE blog for the robot to follow the line forward. When 
 
 ```blocks
 PTKidsBIT.ForwardLINE(
+    Forward_Direction.Forward,
     Find_Line.Left,
     30,
     60,
@@ -155,6 +169,7 @@ PTKidsBIT.ForwardLINE(
 
 Use PTKidsBIT's ForwardTIME blog for the robot to follow the line forward. When the time, the robot will stop. 
 
+* Direction is The direction in which the robot moves.
 * ForwardTIME is set time.
 * Min Speed is minimum speed between `0` to `100`
 * Max Speed is maximun speed between `0` to `100`
@@ -163,6 +178,7 @@ Use PTKidsBIT's ForwardTIME blog for the robot to follow the line forward. When 
 
 ```blocks
 PTKidsBIT.ForwardTIME(
+    Forward_Direction.Forward,
     200,
     60,
     100,
