@@ -405,8 +405,8 @@ namespace PTKidsBIT {
             PD_Value = (kp * P) + (kd * D)
             previous_error = error
 
-            left_motor_speed = min_speed + PD_Value
-            right_motor_speed = min_speed - PD_Value
+            left_motor_speed = min_speed - PD_Value
+            right_motor_speed = min_speed + PD_Value
 
             if (left_motor_speed > max_speed) {
                 left_motor_speed = max_speed
@@ -490,14 +490,8 @@ namespace PTKidsBIT {
                     PD_Value = (kp * P) + (kd * D)
                     previous_error = error
 
-                    if (direction == Forward_Direction.Forward) {
-                        left_motor_speed = min_speed - PD_Value
-                        right_motor_speed = min_speed + PD_Value
-                    }
-                    else {
-                        left_motor_speed = min_speed + PD_Value
-                        right_motor_speed = min_speed - PD_Value
-                    }
+                    left_motor_speed = min_speed - PD_Value
+                    right_motor_speed = min_speed + PD_Value
 
                     if (left_motor_speed > max_speed) {
                         left_motor_speed = max_speed
