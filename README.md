@@ -148,7 +148,7 @@ Use PTKidsBIT's ForwardLINE blog for the robot to follow the line forward. When 
 * Direction is The direction in which the robot moves. Select `Forward` or `Backward`.
 * Find is the line to detect. Select `Left`, `Center` or `Right`
 * Min Speed is minimum speed between `0` to `100`
-* Max Speed is maximun speed between `0` to `100`
+* Max Speed is maximum speed between `0` to `100`
 * Break Time is the time for the Motor to reverse to brake when the Robot stops.
 * KP value for control the robot
 * KD value for control the robot
@@ -172,7 +172,7 @@ Use PTKidsBIT's ForwardTIME blog for the robot to follow the line forward. When 
 * Direction is The direction in which the robot moves. Select `Forward` or `Backward`.
 * Time is set time.
 * Min Speed is minimum speed between `0` to `100`
-* Max Speed is maximun speed between `0` to `100`
+* Max Speed is maximum speed between `0` to `100`
 * KP value for control the robot
 * KD value for control the robot
 
