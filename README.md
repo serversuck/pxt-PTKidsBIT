@@ -63,7 +63,7 @@ Use PTKidsBIT's Spin block to control both motors separately. For example, choos
 * Speed is an integer value between `0` to `100`
 
 ```blocks
-PTKidsBIT.Spin(_Spin.Left, -50)
+PTKidsBIT.Spin(_Spin.Left, 50)
 ```
 
 ### Motor Stop Block 
