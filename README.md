@@ -37,8 +37,8 @@ PTKidsBIT.motorWrite(Motor_Write.Motor_1, 50)
 
 Use PTKidsBIT's motorGo block to drives 2 motor forward and backward. The speed motor is adjustable between 0 to 100.
 
-* The motor1 must be select -100 to 100 (Greater than 0 is forward, less than 0 is backward)
-* The motor2 must be select -100 to 100 (Greater than 0 is forward, less than 0 is backward)
+* The motor1 must be select `-100` to `100` (Greater than 0 is forward, less than 0 is backward)
+* The motor2 must be select `-100` to `100` (Greater than 0 is forward, less than 0 is backward)
 
 ```blocks
 PTKidsBIT.motorGo(50, -50)
