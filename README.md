@@ -146,7 +146,7 @@ PTKidsBIT.LINESensorSET(
 Use PTKidsBIT's ForwardLINE blog for the robot to follow the line forward. When the specified line is found, the robot will stop. 
 
 * Direction is The direction in which the robot moves. Select `Forward` or `Backward`.
-* ForwardFIND is the line to detect. Select `Left`, `Center` or `Right`
+* Find is the line to detect. Select `Left`, `Center` or `Right`
 * Min Speed is minimum speed between `0` to `100`
 * Max Speed is maximun speed between `0` to `100`
 * Break Time is the time for the Motor to reverse to brake when the Robot stops.
@@ -170,7 +170,7 @@ PTKidsBIT.ForwardLINE(
 Use PTKidsBIT's ForwardTIME blog for the robot to follow the line forward. When the time, the robot will stop. 
 
 * Direction is The direction in which the robot moves. Select `Forward` or `Backward`.
-* ForwardTIME is set time.
+* Time is set time.
 * Min Speed is minimum speed between `0` to `100`
 * Max Speed is maximun speed between `0` to `100`
 * KP value for control the robot
