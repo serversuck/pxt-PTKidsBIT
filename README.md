@@ -193,7 +193,7 @@ Use PTKidsBIT's TurnLINE block for the Robot to turn until it detects a line.
 
 * TurnLINE is direction to turn the robot. Select `Left` or `Right`
 * Speed is maximun speed between `0` to `100`
-* Sensor is the position of the sensor you want the robot to stop.
+* Sensor is the sensor you want the robot to stop.
 * Fast Time is the time at the maximum robot speed before a line is detected.
 * Break Time is the time for the Motor to reverse to brake when the Robot stops.
 

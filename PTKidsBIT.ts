@@ -335,7 +335,8 @@ namespace PTKidsBIT {
                 ADC_Read.ADC7
             ]
         let on_line = 0
-        let position = pins.map(sensor, 1, Num_Sensor, 0, (Num_Sensor - 1) * 1000)
+        let adc_sensor_pin = sensor - 1
+        // let position = pins.map(sensor, 1, Num_Sensor, 0, (Num_Sensor - 1) * 1000)
         let error = 0
         let timer = 0
         let motor_speed = 0
@@ -353,15 +354,15 @@ namespace PTKidsBIT {
             }
 
             if (turn == Turn_Line.Left) {
-                motorGo(speed, -speed)
+                motorGo(-speed, speed)
             }
             else if (turn == Turn_Line.Right) {
-                motorGo(-speed, speed)
+                motorGo(speed, -speed)
             }
         }
         timer = control.millis()
         while (1) {
-            if ((Math.abs(position - GETPosition())) <= 300) {
+            if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[adc_sensor_pin]]), Color_Line[adc_sensor_pin], Color_Background[adc_sensor_pin], 1000, 0)) >= 800) {
                 basic.pause(break_delay)
                 motorStop()
                 break
@@ -378,10 +379,10 @@ namespace PTKidsBIT {
                 }
 
                 if (turn == Turn_Line.Left) {
-                    motorGo(motor_speed, -motor_speed)
+                    motorGo(-motor_speed, motor_speed)
                 }
                 else if (turn == Turn_Line.Right) {
-                    motorGo(-motor_speed, motor_speed)
+                    motorGo(motor_speed, -motor_speed)
                 }
             }
         }
