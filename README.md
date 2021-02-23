@@ -201,7 +201,7 @@ Use PTKidsBIT's TurnLINE block for the Robot to turn until it detects a line.
 PTKidsBIT.TurnLINE(
     Turn_Line.Left,
     60,
-    2.5,
+    2,
     200,
     0
 )
