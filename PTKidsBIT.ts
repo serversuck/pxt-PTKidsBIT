@@ -28,6 +28,8 @@ let previous_error = 0
 let PD_Value = 0
 let left_motor_speed = 0
 let right_motor_speed = 0
+let servo_degree_P8 = 0
+let servo_degree_P12 = 0
 
 enum Motor_Write {
     //% block="1"
@@ -142,6 +144,8 @@ namespace PTKidsBIT {
         pins.analogWritePin(AnalogPin.P14, 0)
         pins.digitalWritePin(DigitalPin.P15, 1)
         pins.analogWritePin(AnalogPin.P16, 0)
+        pins.servoWritePin(AnalogPin.P8, servo_degree_P8)
+        pins.servoWritePin(AnalogPin.P12, servo_degree_P12)
     }
 
     //% group="Motor Control"
@@ -259,10 +263,12 @@ namespace PTKidsBIT {
     //% degree.min=0 degree.max=180
     export function servoWrite(servo: Servo_Write, degree: number): void {
         if (servo == Servo_Write.P8) {
-            pins.servoWritePin(AnalogPin.P8, degree)
+            servo_degree_P8 = degree
+            pins.servoWritePin(AnalogPin.P8, servo_degree_P8)
         }
         else if (servo == Servo_Write.P12) {
-            pins.servoWritePin(AnalogPin.P12, degree)
+            servo_degree_P12 = degree
+            pins.servoWritePin(AnalogPin.P12, servo_degree_P12)
         }
     }
 
