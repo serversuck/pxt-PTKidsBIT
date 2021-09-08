@@ -28,6 +28,8 @@ let previous_error = 0
 let PD_Value = 0
 let left_motor_speed = 0
 let right_motor_speed = 0
+let last_degree_P8 = 0;
+let last_degree_P12 = 0;
 
 enum Motor_Write {
     //% block="1"
@@ -55,6 +57,13 @@ enum Servo_Write {
     P8,
     //% block="P12"
     P12
+}
+
+enum Servo_Mode {
+    //% block="Release"
+    Release,
+    //% block="Lock"
+    Lock
 }
 
 enum Button_Status {
@@ -255,14 +264,32 @@ namespace PTKidsBIT {
     /**
      * Control Servo Motor 0 - 180 Degrees
      */
-    //% block="Servo %Servo_Write|Degree %Degree"
+    //% block="Servo %Servo_Write|Degree %Degree|Mode %Servo_Mode"
     //% degree.min=0 degree.max=180
-    export function servoWrite(servo: Servo_Write, degree: number): void {
+    export function servoWrite(servo: Servo_Write, degree: number, mode: Servo_Mode): void {
         if (servo == Servo_Write.P8) {
-            pins.servoWritePin(AnalogPin.P8, degree)
+            if (mode == Servo_Mode.Lock) {
+                pins.servoWritePin(AnalogPin.P8, degree)
+            }
+            else if (mode == Servo_Mode.Release) {
+                pins.servoWritePin(AnalogPin.P8, degree)
+                basic.pause(Math.abs(degree - last_degree_P8) * 5)
+                pins.digitalReadPin(DigitalPin.P8)
+                pins.setPull(DigitalPin.P8, PinPullMode.PullNone)
+            }
+            last_degree_P8 = degree
         }
         else if (servo == Servo_Write.P12) {
-            pins.servoWritePin(AnalogPin.P12, degree)
+            if (mode == Servo_Mode.Lock) {
+                pins.servoWritePin(AnalogPin.P12, degree)
+            }
+            else if (mode == Servo_Mode.Release) {
+                pins.servoWritePin(AnalogPin.P12, degree)
+                basic.pause(Math.abs(degree - last_degree_P12) * 5)
+                pins.digitalReadPin(DigitalPin.P12)
+                pins.setPull(DigitalPin.P12, PinPullMode.PullNone)
+            }
+            last_degree_P12 = degree
         }
     }
 

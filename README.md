@@ -80,6 +80,7 @@ Use PTKidsBIT's servoWrite block for control the servo's moving degree from 0 to
 
 * The Servo must be select either `P8` or `P12`
 * Degree is an integer value between `0 - 180`
+* Mode must be select either `Released` or `Lock`
 
 ```blocks
 PTKidsBIT.servoWrite(Servo_Write.P8, 180)
