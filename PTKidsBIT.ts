@@ -267,12 +267,10 @@ namespace PTKidsBIT {
     //% block="Servo Stop %Servo_Write"
     export function servoStop(servo: Servo_Write): void {
         if (servo == Servo_Write.P8) {
-            pins.digitalReadPin(DigitalPin.P8)
-            pins.setPull(DigitalPin.P8, PinPullMode.PullNone)
+            pins.analogWritePin(AnalogPin.P8, 1)
         }
         else if (servo == Servo_Write.P12) {
-            pins.digitalReadPin(DigitalPin.P12)
-            pins.setPull(DigitalPin.P12, PinPullMode.PullNone)
+            pins.analogWritePin(AnalogPin.P12, 1)
         }
     }
 
@@ -295,8 +293,7 @@ namespace PTKidsBIT {
                 else {
                     basic.pause(Math.abs(degree - last_degree_P8) * 5)
                 }
-                pins.digitalReadPin(DigitalPin.P8)
-                pins.setPull(DigitalPin.P8, PinPullMode.PullNone)
+                pins.analogWritePin(AnalogPin.P8, 1)
             }
             last_degree_P8 = degree
         }
@@ -312,8 +309,7 @@ namespace PTKidsBIT {
                 else {
                     basic.pause(Math.abs(degree - last_degree_P12) * 5)
                 }
-                pins.digitalReadPin(DigitalPin.P12)
-                pins.setPull(DigitalPin.P12, PinPullMode.PullNone)
+                pins.analogWritePin(AnalogPin.P12, 1)
             }
             last_degree_P12 = degree
         }
