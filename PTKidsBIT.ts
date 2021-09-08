@@ -262,7 +262,23 @@ namespace PTKidsBIT {
 
     //% group="Servo Control"
     /**
-     * Control Servo Motor 0 - 180 Degrees
+     * Control Servo Motor to Release Mode
+     */
+    //% block="Servo Stop %Servo_Write"
+    export function servoStop(servo: Servo_Write): void {
+        if (servo == Servo_Write.P8) {
+            pins.digitalReadPin(DigitalPin.P8)
+            pins.setPull(DigitalPin.P8, PinPullMode.PullNone)
+        }
+        else if (servo == Servo_Write.P12) {
+            pins.digitalReadPin(DigitalPin.P12)
+            pins.setPull(DigitalPin.P12, PinPullMode.PullNone)
+        }
+    }
+
+    //% group="Servo Control"
+    /**
+     * Control Servo Motor 0 - 180 Degrees and Lock or Release Mode
      */
     //% block="Servo %Servo_Write|Degree %Degree|Mode %Servo_Mode"
     //% degree.min=0 degree.max=180
@@ -299,6 +315,23 @@ namespace PTKidsBIT {
                 pins.digitalReadPin(DigitalPin.P12)
                 pins.setPull(DigitalPin.P12, PinPullMode.PullNone)
             }
+            last_degree_P12 = degree
+        }
+    }
+
+    //% group="Servo Control"
+    /**
+     * Control Servo Motor 0 - 180 Degrees
+     */
+    //% block="Servo %Servo_Write|Degree %Degree"
+    //% degree.min=0 degree.max=180
+    export function servoWrite2(servo: Servo_Write, degree: number): void {
+        if (servo == Servo_Write.P8) {
+            pins.servoWritePin(AnalogPin.P8, degree)
+            last_degree_P8 = degree
+        }
+        else if (servo == Servo_Write.P12) {
+            pins.servoWritePin(AnalogPin.P12, degree)
             last_degree_P12 = degree
         }
     }
