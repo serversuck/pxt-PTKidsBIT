@@ -11,6 +11,9 @@ let Sensor_Right: number[] = []
 let Num_Sensor = 0
 let LED_PIN = 0
 
+let PCA = 0x40
+let initI2C = false
+let SERVOS = 0x06
 let Line_LOW = [0, 0, 0, 0, 0, 0, 0, 0]
 let Line_HIGH = [0, 0, 0, 0, 0, 0, 0, 0]
 let Color_Line: number[] = []
@@ -57,6 +60,29 @@ enum Servo_Write {
     P8,
     //% block="P12"
     P12
+}
+
+enum Servo_Write2 {
+    //% block="P8"
+    P8,
+    //% block="P12"
+    P12,
+    //% block="S0"
+    S0,
+    //% block="S1"
+    S1,
+    //% block="S2"
+    S2,
+    //% block="S3"
+    S3,
+    //% block="S4"
+    S4,
+    //% block="S5"
+    S5,
+    //% block="S6"
+    S6,
+    //% block="S7"
+    S7
 }
 
 enum Servo_Mode {
@@ -139,8 +165,51 @@ enum Turn_Line {
     Right
 }
 
-//% color="#00EAA3" icon="\u2B9A"
+//% color="#2ECC71" icon="\u2B9A"
 namespace PTKidsBIT {
+    function initPCA(): void {
+        let i2cData = pins.createBuffer(2)
+        initI2C = true
+        i2cData[0] = 0
+        i2cData[1] = 0x10
+        pins.i2cWriteBuffer(PCA, i2cData, false)
+
+        i2cData[0] = 0xFE
+        i2cData[1] = 101
+        pins.i2cWriteBuffer(PCA, i2cData, false)
+
+        i2cData[0] = 0
+        i2cData[1] = 0x81
+        pins.i2cWriteBuffer(PCA, i2cData, false)
+
+        for (let servo = 0; servo < 16; servo++) {
+            i2cData[0] = SERVOS + servo * 4 + 0
+            i2cData[1] = 0x00
+
+            i2cData[0] = SERVOS + servo * 4 + 1
+            i2cData[1] = 0x00
+            pins.i2cWriteBuffer(PCA, i2cData, false);
+        }
+    }
+
+    function setServoPCA(servo: number, angle: number): void {
+        if (initI2C == false) {
+            initPCA()
+        }
+        let i2cData = pins.createBuffer(2)
+        let start = 0
+        let angle_input = pins.map(angle, 0, 180, -90, 90)
+        angle = Math.max(Math.min(90, angle_input), -90)
+        let stop = 369 + angle * 235 / 90
+        i2cData[0] = SERVOS + servo * 4 + 2
+        i2cData[1] = (stop & 0xff)
+        pins.i2cWriteBuffer(PCA, i2cData, false)
+
+        i2cData[0] = SERVOS + servo * 4 + 3
+        i2cData[1] = (stop >> 8)
+        pins.i2cWriteBuffer(PCA, i2cData, false)
+    }
+
     //% group="Motor Control"
     /**
      * Stop all Motor
@@ -321,14 +390,38 @@ namespace PTKidsBIT {
      */
     //% block="Servo %Servo_Write|Degree %Degree"
     //% degree.min=0 degree.max=180
-    export function servoWrite2(servo: Servo_Write, degree: number): void {
-        if (servo == Servo_Write.P8) {
+    export function servoWrite2(servo: Servo_Write2, degree: number): void {
+        if (servo == Servo_Write2.P8) {
             pins.servoWritePin(AnalogPin.P8, degree)
             last_degree_P8 = degree
         }
-        else if (servo == Servo_Write.P12) {
+        else if (servo == Servo_Write2.P12) {
             pins.servoWritePin(AnalogPin.P12, degree)
             last_degree_P12 = degree
+        }
+        else if (servo == Servo_Write2.S0) {
+            setServoPCA(0, degree)
+        }
+        else if (servo == Servo_Write2.S1) {
+            setServoPCA(1, degree)
+        }
+        else if (servo == Servo_Write2.S2) {
+            setServoPCA(2, degree)
+        }
+        else if (servo == Servo_Write2.S3) {
+            setServoPCA(3, degree)
+        }
+        else if (servo == Servo_Write2.S4) {
+            setServoPCA(4, degree)
+        }
+        else if (servo == Servo_Write2.S5) {
+            setServoPCA(5, degree)
+        }
+        else if (servo == Servo_Write2.S6) {
+            setServoPCA(6, degree)
+        }
+        else if (servo == Servo_Write2.S7) {
+            setServoPCA(7, degree)
         }
     }
 
