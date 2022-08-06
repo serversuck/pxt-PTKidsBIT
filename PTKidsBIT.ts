@@ -33,6 +33,8 @@ let left_motor_speed = 0
 let right_motor_speed = 0
 let last_degree_P8 = 0;
 let last_degree_P12 = 0;
+let distance = 0
+let timer = 0
 
 enum Motor_Write {
     //% block="1"
@@ -110,6 +112,13 @@ enum Button_Pin {
     P12
 }
 
+enum Ultrasonic_PIN {
+    //% block="P1"
+    P1,
+    //% block="P2"
+    P2
+}
+
 enum ADC_Read {
     //% block="0"
     ADC0 = 0x84,
@@ -165,7 +174,7 @@ enum Turn_Line {
     Right
 }
 
-//% color="#2ECC71" icon="\u2B9A"
+//% color="#51cb57" icon="\u2B9A"
 namespace PTKidsBIT {
     function initPCA(): void {
         let i2cData = pins.createBuffer(2)
@@ -423,6 +432,43 @@ namespace PTKidsBIT {
         else if (servo == Servo_Write2.S7) {
             setServoPCA(7, degree)
         }
+    }
+
+    //% group="Sensor and ADC"
+    /**
+     * Read Distance from Ultrasonic Sensor
+     */
+    //% block="GETDistance Triger %Trigger_PIN|Echo %Echo_PIN"
+    //% Echo_PIN.defl=Ultrasonic_PIN.P2
+    export function distanceRead(Trigger_PIN: Ultrasonic_PIN, Echo_PIN: Ultrasonic_PIN): number {
+        let duration
+        let maxCmDistance = 500
+
+        if (control.millis() - timer > 1000) {
+            pins.setPull(DigitalPin.P1, PinPullMode.PullNone)
+            pins.digitalWritePin(DigitalPin.P1, 0)
+            control.waitMicros(2)
+            pins.digitalWritePin(DigitalPin.P1, 1)
+            control.waitMicros(10)
+            pins.digitalWritePin(DigitalPin.P1, 0)
+            duration = pins.pulseIn(DigitalPin.P2, PulseValue.High, maxCmDistance * 58)
+            distance = Math.idiv(duration, 58)
+        }
+
+        pins.setPull(DigitalPin.P1, PinPullMode.PullNone)
+        pins.digitalWritePin(DigitalPin.P1, 0)
+        control.waitMicros(2)
+        pins.digitalWritePin(DigitalPin.P1, 1)
+        control.waitMicros(10)
+        pins.digitalWritePin(DigitalPin.P1, 0)
+        duration = pins.pulseIn(DigitalPin.P2, PulseValue.High, maxCmDistance * 58)
+        let d = Math.idiv(duration, 58)
+
+        if (d != 0) {
+            distance = (0.1 * d) + (1 - 0.1) * distance
+        }
+        timer = control.millis()
+        return Math.round(distance)
     }
 
     //% group="Sensor and ADC"
