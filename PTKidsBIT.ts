@@ -445,6 +445,29 @@ namespace PTKidsBIT {
         let maxCmDistance = 500
 
         if (control.millis() - timer > 1000) {
+            if (Trigger_PIN == Ultrasonic_PIN.P1 && Echo_PIN == Ultrasonic_PIN.P2) {
+                pins.setPull(DigitalPin.P1, PinPullMode.PullNone)
+                pins.digitalWritePin(DigitalPin.P1, 0)
+                control.waitMicros(2)
+                pins.digitalWritePin(DigitalPin.P1, 1)
+                control.waitMicros(10)
+                pins.digitalWritePin(DigitalPin.P1, 0)
+                duration = pins.pulseIn(DigitalPin.P2, PulseValue.High, maxCmDistance * 58)
+                distance = Math.idiv(duration, 58)
+            }
+            else if (Trigger_PIN == Ultrasonic_PIN.P2 && Echo_PIN == Ultrasonic_PIN.P1) {
+                pins.setPull(DigitalPin.P2, PinPullMode.PullNone)
+                pins.digitalWritePin(DigitalPin.P2, 0)
+                control.waitMicros(2)
+                pins.digitalWritePin(DigitalPin.P2, 1)
+                control.waitMicros(10)
+                pins.digitalWritePin(DigitalPin.P2, 0)
+                duration = pins.pulseIn(DigitalPin.P1, PulseValue.High, maxCmDistance * 58)
+                distance = Math.idiv(duration, 58)
+            }
+        }
+
+        if (Trigger_PIN == Ultrasonic_PIN.P1 && Echo_PIN == Ultrasonic_PIN.P2) {
             pins.setPull(DigitalPin.P1, PinPullMode.PullNone)
             pins.digitalWritePin(DigitalPin.P1, 0)
             control.waitMicros(2)
@@ -452,16 +475,17 @@ namespace PTKidsBIT {
             control.waitMicros(10)
             pins.digitalWritePin(DigitalPin.P1, 0)
             duration = pins.pulseIn(DigitalPin.P2, PulseValue.High, maxCmDistance * 58)
-            distance = Math.idiv(duration, 58)
         }
-
-        pins.setPull(DigitalPin.P1, PinPullMode.PullNone)
-        pins.digitalWritePin(DigitalPin.P1, 0)
-        control.waitMicros(2)
-        pins.digitalWritePin(DigitalPin.P1, 1)
-        control.waitMicros(10)
-        pins.digitalWritePin(DigitalPin.P1, 0)
-        duration = pins.pulseIn(DigitalPin.P2, PulseValue.High, maxCmDistance * 58)
+        else if (Trigger_PIN == Ultrasonic_PIN.P2 && Echo_PIN == Ultrasonic_PIN.P1) {
+            pins.setPull(DigitalPin.P2, PinPullMode.PullNone)
+            pins.digitalWritePin(DigitalPin.P2, 0)
+            control.waitMicros(2)
+            pins.digitalWritePin(DigitalPin.P2, 1)
+            control.waitMicros(10)
+            pins.digitalWritePin(DigitalPin.P2, 0)
+            duration = pins.pulseIn(DigitalPin.P1, PulseValue.High, maxCmDistance * 58)
+        }
+        
         let d = Math.idiv(duration, 58)
 
         if (d != 0) {
