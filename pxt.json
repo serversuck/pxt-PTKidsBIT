@@ -3,8 +3,7 @@
     "version": "2.1.0",
     "description": "",
     "dependencies": {
-        "core": "*",
-        "microphone": "*"
+        "core": "*"
     },
     "files": [
         "README.md",
