@@ -573,7 +573,7 @@ namespace PTKidsBIT {
         while (1) {
             on_line = 0
             for (let i = 0; i < Sensor_PIN.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 100) {
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 800) {
                     on_line += 1;
                 }
             }
