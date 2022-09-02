@@ -573,7 +573,7 @@ namespace PTKidsBIT {
         while (1) {
             on_line = 0
             for (let i = 0; i < Sensor_PIN.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 800) {
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 200) {
                     on_line += 1;
                 }
             }
@@ -591,7 +591,7 @@ namespace PTKidsBIT {
         }
         timer = control.millis()
         while (1) {
-            if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[adc_sensor_pin]]), Color_Line[adc_sensor_pin], Color_Background[adc_sensor_pin], 1000, 0)) >= 800) {
+            if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[adc_sensor_pin]]), Color_Line[adc_sensor_pin], Color_Background[adc_sensor_pin], 1000, 0)) >= 200) {
                 basic.pause(break_delay)
                 motorStop()
                 break
@@ -696,19 +696,19 @@ namespace PTKidsBIT {
             on_line = 0
             on_line_LR = 0
             for (let i = 0; i < Sensor_PIN.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 800) {
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 200) {
                     on_line += 1;
                 }
             }
 
             for (let i = 0; i < Sensor_Left.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 800) {
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 200) {
                     on_line_LR += 1;
                 }
             }
 
             for (let i = 0; i < Sensor_Right.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 800) {
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 200) {
                     on_line_LR += 1;
                 }
             }
@@ -803,13 +803,13 @@ namespace PTKidsBIT {
 
             if (line_state == 0) {
                 for (let i = 0; i < Sensor_Left.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 800) {
+                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 200) {
                         found_left += 1;
                     }
                 }
 
                 for (let i = 0; i < Sensor_Right.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 800) {
+                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 200) {
                         found_right += 1;
                     }
                 }
@@ -820,7 +820,7 @@ namespace PTKidsBIT {
             }
             else if (line_state == 1) {
                 for (let i = 0; i < Sensor_Left.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 800) {
+                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 200) {
                         found_left += 1;
                         if (last_left != Sensor_Left.length) {
                             last_left = found_left
@@ -829,7 +829,7 @@ namespace PTKidsBIT {
                 }
 
                 for (let i = 0; i < Sensor_Right.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 800) {
+                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 200) {
                         found_right += 1;
                         if (last_right != Sensor_Right.length) {
                             last_right = found_right
