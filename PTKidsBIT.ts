@@ -14,8 +14,6 @@ let LED_PIN = 0
 let PCA = 0x40
 let initI2C = false
 let SERVOS = 0x06
-let Line_LOW = [0, 0, 0, 0, 0, 0, 0, 0]
-let Line_HIGH = [0, 0, 0, 0, 0, 0, 0, 0]
 let Color_Line: number[] = []
 let Color_Background: number[] = []
 let Color_Line_Left: number[] = []
@@ -637,7 +635,7 @@ namespace PTKidsBIT {
     /**
      * Line Follower Forward Timer
      */
-    //% block="Direction %Forward_Direction|Time %time|Min Speed\n\n %base_speed|Max Speed\n\n %max_speed|KP %kp|KD %kd"
+    //% block="Direction %Forward_Direction|Time %time|Min Speed %base_speed|Max Speed %max_speed|KP %kp|KD %kd"
     //% min_speed.min=0 min_speed.max=100
     //% max_speed.min=0 max_speed.max=100
     //% time.shadow="timePicker"
@@ -677,6 +675,26 @@ namespace PTKidsBIT {
         }
         motorStop()
     }
+    //% group="Line Follower"
+    /**
+     * Line Follower Forward with Counter Line
+     */
+    //% block="Direction %Forward_Direction|Find %Find_Line|Count Line %count|Min Speed\n %base_speed|Max Speed\n %max_speed|Break Time %break_time|KP %kp|KD %kd"
+    //% min_speed.min=0 min_speed.max=100
+    //% max_speed.min=0 max_speed.max=100
+    //% break_time.shadow="timePicker"
+    //% count.defl=2
+    //% break_time.defl=20
+    export function ForwardLINECount(direction: Forward_Direction, find: Find_Line, count: number, min_speed: number, max_speed: number, break_time: number, kp: number, kd: number) {
+        for (let i = 0; i < count; i++) {
+            if (i < count - 1) {
+                ForwardLINE(direction, find, min_speed, max_speed, 0, kp, kd)
+            }
+            else {
+                ForwardLINE(direction, find, min_speed, max_speed, break_time, kp, kd)
+            }
+        }
+    }
 
     //% group="Line Follower"
     /**
@@ -701,166 +719,126 @@ namespace PTKidsBIT {
         let found_left = 0
         let found_right = 0
         let last_left = 0
+        let last_center = 0
         let last_right = 0
         let line_state = 0
         let on_line = 0
         let on_line_LR = 0
 
         while (1) {
-            found_left = 0
-            found_right = 0
-            on_line = 0
-            on_line_LR = 0
             for (let i = 0; i < Sensor_PIN.length; i++) {
                 if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 200) {
-                    on_line += 1;
+                    last_center += 1
                 }
             }
 
+            error = GETPosition() - (((Num_Sensor - 1) * 1000) / 2)
+            P = error
+            D = error - previous_error
+            PD_Value = (kp * P) + (kd * D)
+            previous_error = error
+
+            if (direction == Forward_Direction.Forward) {
+                left_motor_speed = min_speed - PD_Value
+                right_motor_speed = min_speed + PD_Value
+            }
+            else {
+                left_motor_speed = min_speed + PD_Value
+                right_motor_speed = min_speed - PD_Value
+            }
+
+            if (left_motor_speed > max_speed) {
+                left_motor_speed = max_speed
+            }
+            else if (left_motor_speed < -max_speed) {
+                left_motor_speed = -max_speed
+            }
+
+            if (right_motor_speed > max_speed) {
+                right_motor_speed = max_speed
+            }
+            else if (right_motor_speed < -max_speed) {
+                right_motor_speed = -max_speed
+            }
+
+            if (direction == Forward_Direction.Forward) {
+                if (last_center > 0) {
+                    motorGo(left_motor_speed, right_motor_speed)
+                }
+                else {
+                    motorGo(min_speed, min_speed)
+                }
+            }
+            else {
+                if (last_center > 0) {
+                    motorGo(-left_motor_speed, -right_motor_speed)
+                }
+                else {
+                    motorGo(-min_speed, -min_speed)
+                }
+            }
+
+            last_center = 0
+
             for (let i = 0; i < Sensor_Left.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 200) {
-                    on_line_LR += 1;
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background_Left[i], 1000, 0)) >= 200) {
+                    if (found_left < Sensor_Left.length) {
+                        found_left += 1
+                    }
                 }
             }
 
             for (let i = 0; i < Sensor_Right.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 200) {
-                    on_line_LR += 1;
-                }
-            }
-            if (Sensor_PIN.length <= 2) {
-                if (on_line > 0 && on_line <= 2) {
-                    error = GETPosition() - (((Num_Sensor - 1) * 1000) / 2)
-                    P = error
-                    D = error - previous_error
-                    PD_Value = (kp * P) + (kd * D)
-                    previous_error = error
-
-                    left_motor_speed = min_speed - PD_Value
-                    right_motor_speed = min_speed + PD_Value
-
-                    if (left_motor_speed > max_speed) {
-                        left_motor_speed = max_speed
-                    }
-                    else if (left_motor_speed < -max_speed) {
-                        left_motor_speed = -max_speed
-                    }
-
-                    if (right_motor_speed > max_speed) {
-                        right_motor_speed = max_speed
-                    }
-                    else if (right_motor_speed < -max_speed) {
-                        right_motor_speed = -max_speed
-                    }
-
-                    if (direction == Forward_Direction.Forward) {
-                        motorGo(left_motor_speed, right_motor_speed)
-                    }
-                    else {
-                        motorGo(-left_motor_speed, -right_motor_speed)
-                    }
-                }
-                else {
-                    if (direction == Forward_Direction.Forward) {
-                        motorGo(min_speed, min_speed)
-                    }
-                    else {
-                        motorGo(-min_speed, -min_speed)
-                    }
-                }
-            }
-            else {
-                if (on_line > 0 && on_line <= 2 && on_line_LR == 0) {
-                    error = GETPosition() - (((Num_Sensor - 1) * 1000) / 2)
-                    P = error
-                    D = error - previous_error
-                    PD_Value = (kp * P) + (kd * D)
-                    previous_error = error
-
-                    if (direction == Forward_Direction.Forward) {
-                        left_motor_speed = min_speed - PD_Value
-                        right_motor_speed = min_speed + PD_Value
-                    }
-                    else {
-                        left_motor_speed = min_speed + PD_Value
-                        right_motor_speed = min_speed - PD_Value
-                    }
-
-                    if (left_motor_speed > max_speed) {
-                        left_motor_speed = max_speed
-                    }
-                    else if (left_motor_speed < -max_speed) {
-                        left_motor_speed = -max_speed
-                    }
-
-                    if (right_motor_speed > max_speed) {
-                        right_motor_speed = max_speed
-                    }
-                    else if (right_motor_speed < -max_speed) {
-                        right_motor_speed = -max_speed
-                    }
-
-                    if (direction == Forward_Direction.Forward) {
-                        motorGo(left_motor_speed, right_motor_speed)
-                    }
-                    else {
-                        motorGo(-left_motor_speed, -right_motor_speed)
-                    }
-                }
-                else {
-                    if (direction == Forward_Direction.Forward) {
-                        motorGo(min_speed, min_speed)
-                    }
-                    else {
-                        motorGo(-min_speed, -min_speed)
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background_Right[i], 1000, 0)) >= 200) {
+                    if (found_right < Sensor_Right.length) {
+                        found_right += 1
                     }
                 }
             }
 
             if (line_state == 0) {
-                for (let i = 0; i < Sensor_Left.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 200) {
-                        found_left += 1;
-                    }
-                }
-
-                for (let i = 0; i < Sensor_Right.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 200) {
-                        found_right += 1;
-                    }
-                }
-
                 if (found_left == Sensor_Left.length || found_right == Sensor_Right.length) {
                     line_state = 1
                 }
             }
             else if (line_state == 1) {
-                for (let i = 0; i < Sensor_Left.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background[i], 1000, 0)) >= 200) {
-                        found_left += 1;
-                        if (last_left != Sensor_Left.length) {
-                            last_left = found_left
+                if (direction == Forward_Direction.Forward) {
+                    motorGo(min_speed, min_speed)
+                }
+                else {
+                    motorGo(-min_speed, -min_speed)
+                }
+                while (1) {
+                    for (let i = 0; i < Sensor_Left.length; i++) {
+                        if ((pins.map(ADCRead(ADC_PIN[Sensor_Left[i]]), Color_Line_Left[i], Color_Background_Left[i], 1000, 0)) >= 200) {
+                            last_left += 1
+                            if (found_left < Sensor_Left.length) {
+                                found_left += 1
+                            }
                         }
                     }
-                }
 
-                for (let i = 0; i < Sensor_Right.length; i++) {
-                    if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background[i], 1000, 0)) >= 200) {
-                        found_right += 1;
-                        if (last_right != Sensor_Right.length) {
-                            last_right = found_right
+                    for (let i = 0; i < Sensor_Right.length; i++) {
+                        if ((pins.map(ADCRead(ADC_PIN[Sensor_Right[i]]), Color_Line_Right[i], Color_Background_Right[i], 1000, 0)) >= 200) {
+                            last_right += 1
+                            if (found_right < Sensor_Right.length) {
+                                found_right += 1
+                            }
                         }
                     }
-                }
 
-                if (found_left != Sensor_Left.length && found_right != Sensor_Right.length) {
-                    line_state = 2
+                    if (last_left != Sensor_Left.length && last_right != Sensor_Right.length) {
+                        line_state = 2
+                        break
+                    }
+
+                    last_left = 0
+                    last_right = 0
                 }
             }
-
             else if (line_state == 2) {
                 if (find == Find_Line.Left) {
-                    if (last_left == Sensor_Left.length && last_right != Sensor_Right.length) {
+                    if (found_left == Sensor_Left.length && found_right != Sensor_Right.length) {
                         if (direction == Forward_Direction.Forward) {
                             motorGo(-100, -100)
                         }
@@ -872,13 +850,13 @@ namespace PTKidsBIT {
                         break
                     }
                     else {
-                        last_left = 0
-                        last_right = 0
+                        found_left = 0
+                        found_right = 0
                         line_state = 0
                     }
                 }
                 else if (find == Find_Line.Center) {
-                    if (last_left == Sensor_Left.length && last_right == Sensor_Right.length) {
+                    if (found_left == Sensor_Left.length && found_right == Sensor_Right.length) {
                         if (direction == Forward_Direction.Forward) {
                             motorGo(-100, -100)
                         }
@@ -890,13 +868,13 @@ namespace PTKidsBIT {
                         break
                     }
                     else {
-                        last_left = 0
-                        last_right = 0
+                        found_left = 0
+                        found_right = 0
                         line_state = 0
                     }
                 }
                 else if (find == Find_Line.Right) {
-                    if (last_left != Sensor_Left.length && last_right == Sensor_Right.length) {
+                    if (found_left != Sensor_Left.length && found_right == Sensor_Right.length) {
                         if (direction == Forward_Direction.Forward) {
                             motorGo(-100, -100)
                         }
@@ -908,8 +886,8 @@ namespace PTKidsBIT {
                         break
                     }
                     else {
-                        last_left = 0
-                        last_right = 0
+                        found_left = 0
+                        found_right = 0
                         line_state = 0
                     }
                 }
@@ -1011,6 +989,58 @@ namespace PTKidsBIT {
 
     //% group="Line Follower"
     /**
+     * Print Sensor Value
+     */
+    //% block="PrintSensorValue"
+    export function PrintSensorValue() {
+        let ADC_PIN = [
+            ADC_Read.ADC0,
+            ADC_Read.ADC1,
+            ADC_Read.ADC2,
+            ADC_Read.ADC3,
+            ADC_Read.ADC4,
+            ADC_Read.ADC5,
+            ADC_Read.ADC6,
+            ADC_Read.ADC7
+        ]
+
+        let sensor_left = "Sensor Left:"
+        let sensor_center = "Sensor Center:"
+        let sensor_right = "Sensor Right:"
+
+        for (let i = 0; i < Sensor_Left.length; i++) {
+            sensor_left += " " + ADCRead(ADC_PIN[Sensor_Left[i]])
+        }
+
+        for (let i = 0; i < Sensor_PIN.length; i++) {
+            sensor_center += " " + ADCRead(ADC_PIN[Sensor_PIN[i]])
+        }
+
+        for (let i = 0; i < Sensor_Right.length; i++) {
+            sensor_right += " " + ADCRead(ADC_PIN[Sensor_Right[i]])
+        }
+
+        serial.writeLine("" + sensor_left)
+        serial.writeLine("" + sensor_center)
+        serial.writeLine("" + sensor_right)
+    }
+
+    //% group="Line Follower"
+    /**
+     * Set Value Sensor
+     */
+    //% block="SETColorLine\n $line_center|Line Left\n\n\n\n $line_left|Line Right\n\n\n $line_right|SETColorFloor $floor_center|Floor Left\n\n\n $floor_left|Floor Right\n\n $floor_right"
+    export function ValueSensorSET(line_center: number[], line_left: number[], line_right: number[], floor_center: number[], floor_left: number[], floor_right: number[]): void {
+        Color_Line = line_center
+        Color_Line_Left = line_left
+        Color_Line_Right = line_right
+        Color_Background = floor_center
+        Color_Background_Left = floor_left
+        Color_Background_Right = floor_right
+    }
+
+    //% group="Line Follower"
+    /**
      * Set Line Sensor Pin
      */
     //% block="LINESensorSET $adc_pin|Sensor Left\n\n $sensor_left|Sensor Right\n $sensor_right|ON OFF Sensor $led_pin"
@@ -1020,19 +1050,6 @@ namespace PTKidsBIT {
         Sensor_Right = sensor_right
         Num_Sensor = Sensor_PIN.length
         LED_PIN = led_pin
-
-        for (let i = 0; i < Num_Sensor; i++) {
-            Color_Line[i] = Line_HIGH[Sensor_PIN[i]]
-            Color_Background[i] = Line_LOW[Sensor_PIN[i]]
-        }
-        for (let i = 0; i < Sensor_Left.length; i++) {
-            Color_Line_Left[i] = Line_HIGH[Sensor_Left[i]]
-            Color_Background_Left[i] = Line_LOW[Sensor_Left[i]]
-        }
-        for (let i = 0; i < Sensor_Right.length; i++) {
-            Color_Line_Right[i] = Line_HIGH[Sensor_Right[i]]
-            Color_Background_Right[i] = Line_LOW[Sensor_Right[i]]
-        }
     }
 
     //% group="Line Follower"
@@ -1069,9 +1086,19 @@ namespace PTKidsBIT {
         }
         for (let i = 0; i < _Num_Sensor; i++) {
             Line_Cal[i] = Line_Cal[i] / 20
-            for (let j = 0; j < 8; j++) {
-                if (_Sensor_PIN[i] == j) {
-                    Line_HIGH[j] = Line_Cal[i]
+            for (let j = 0; j < Sensor_Left.length; j++) {
+                if (Sensor_Left[j] == _Sensor_PIN[i]) {
+                    Color_Line_Left.push(Line_Cal[i])
+                }
+            }
+            for (let j = 0; j < Sensor_PIN.length; j++) {
+                if (Sensor_PIN[j] == _Sensor_PIN[i]) {
+                    Color_Line.push(Line_Cal[i])
+                }
+            }
+            for (let j = 0; j < Sensor_Right.length; j++) {
+                if (Sensor_Right[j] == _Sensor_PIN[i]) {
+                    Color_Line_Right.push(Line_Cal[i])
                 }
             }
         }
@@ -1088,13 +1115,24 @@ namespace PTKidsBIT {
         }
         for (let i = 0; i < _Num_Sensor; i++) {
             Background_Cal[i] = Background_Cal[i] / 20
-            for (let j = 0; j < 8; j++) {
-                if (_Sensor_PIN[i] == j) {
-                    Line_LOW[j] = Background_Cal[i]
+            for (let j = 0; j < Sensor_Left.length; j++) {
+                if (Sensor_Left[j] == _Sensor_PIN[i]) {
+                    Color_Background_Left.push(Background_Cal[i])
+                }
+            }
+            for (let j = 0; j < Sensor_PIN.length; j++) {
+                if (Sensor_PIN[j] == _Sensor_PIN[i]) {
+                    Color_Background.push(Background_Cal[i])
+                }
+            }
+            for (let j = 0; j < Sensor_Right.length; j++) {
+                if (Sensor_Right[j] == _Sensor_PIN[i]) {
+                    Color_Background_Right.push(Background_Cal[i])
                 }
             }
         }
         music.playTone(784, music.beat(BeatFraction.Quarter))
         music.playTone(587, music.beat(BeatFraction.Quarter))
+        basic.pause(500)
     }
 }
