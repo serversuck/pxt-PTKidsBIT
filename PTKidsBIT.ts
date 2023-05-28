@@ -11,6 +11,8 @@ let Sensor_Right: number[] = []
 let Num_Sensor = 0
 let LED_PIN = 0
 
+let ADC_Version = 1
+let Read_ADC_Version = false
 let PCA = 0x40
 let initI2C = false
 let SERVOS = 0x06
@@ -223,6 +225,18 @@ namespace PTKidsBIT {
      */
     //% block="Motor Stop"
     export function motorStop(): void {
+        if (Read_ADC_Version == false) {
+            let i2cData = pins.createBuffer(1)
+            i2cData[0] = 132
+            if (pins.i2cWriteBuffer(0x4b, i2cData, false) == 0) {
+                ADC_Version = 2
+            }
+            else {
+                ADC_Version = 1
+            }
+            Read_ADC_Version = true
+        }
+
         pins.digitalWritePin(DigitalPin.P13, 1)
         pins.analogWritePin(AnalogPin.P14, 0)
         pins.digitalWritePin(DigitalPin.P15, 1)
@@ -236,6 +250,18 @@ namespace PTKidsBIT {
     //% block="Spin %_Spin|Speed %Speed"
     //% speed.min=0 speed.max=100
     export function Spin(spin: _Spin, speed: number): void {
+        if (Read_ADC_Version == false) {
+            let i2cData = pins.createBuffer(1)
+            i2cData[0] = 132
+            if (pins.i2cWriteBuffer(0x4b, i2cData, false) == 0) {
+                ADC_Version = 2
+            }
+            else {
+                ADC_Version = 1
+            }
+            Read_ADC_Version = true
+        }
+
         speed = pins.map(speed, 0, 100, 0, 1023)
 
         if (spin == _Spin.Left) {
@@ -263,6 +289,18 @@ namespace PTKidsBIT {
     //% block="Turn %_Turn|Speed %Speed"
     //% speed.min=0 speed.max=100
     export function Turn(turn: _Turn, speed: number): void {
+        if (Read_ADC_Version == false) {
+            let i2cData = pins.createBuffer(1)
+            i2cData[0] = 132
+            if (pins.i2cWriteBuffer(0x4b, i2cData, false) == 0) {
+                ADC_Version = 2
+            }
+            else {
+                ADC_Version = 1
+            }
+            Read_ADC_Version = true
+        }
+
         speed = pins.map(speed, 0, 100, 0, 1023)
 
         if (turn == _Turn.Left) {
@@ -291,6 +329,18 @@ namespace PTKidsBIT {
     //% speed1.min=-100 speed1.max=100
     //% speed2.min=-100 speed2.max=100
     export function motorGo(speed1: number, speed2: number): void {
+        if (Read_ADC_Version == false) {
+            let i2cData = pins.createBuffer(1)
+            i2cData[0] = 132
+            if (pins.i2cWriteBuffer(0x4b, i2cData, false) == 0) {
+                ADC_Version = 2
+            }
+            else {
+                ADC_Version = 1
+            }
+            Read_ADC_Version = true
+        }
+
         speed1 = pins.map(speed1, -100, 100, -1023, 1023)
         speed2 = pins.map(speed2, -100, 100, -1023, 1023)
 
@@ -324,6 +374,18 @@ namespace PTKidsBIT {
     //% block="motorWrite %Motor_Write|Speed %Speed"
     //% speed.min=-100 speed.max=100
     export function motorWrite(motor: Motor_Write, speed: number): void {
+        if (Read_ADC_Version == false) {
+            let i2cData = pins.createBuffer(1)
+            i2cData[0] = 132
+            if (pins.i2cWriteBuffer(0x4b, i2cData, false) == 0) {
+                ADC_Version = 2
+            }
+            else {
+                ADC_Version = 1
+            }
+            Read_ADC_Version = true
+        }
+        
         speed = pins.map(speed, -100, 100, -1023, 1023)
 
         if (motor == Motor_Write.Motor_1) {
@@ -515,8 +577,29 @@ namespace PTKidsBIT {
      */
     //% block="ADCRead %ADC_Read"
     export function ADCRead(ADCRead: ADC_Read): number {
-        pins.i2cWriteNumber(0x48, ADCRead, NumberFormat.UInt8LE, false)
-        return ADCRead = pins.i2cReadNumber(0x48, NumberFormat.UInt16BE, false)
+        if (Read_ADC_Version == false) {
+            let i2cData = pins.createBuffer(1)
+            i2cData[0] = 132
+            if (pins.i2cWriteBuffer(0x4b, i2cData, false) == 0) {
+                ADC_Version = 2
+            }
+            else {
+                ADC_Version = 1
+            }
+            Read_ADC_Version = true
+        }
+
+        if (ADC_Version == 1) {
+            pins.i2cWriteNumber(0x48, ADCRead, NumberFormat.UInt8LE, false)
+            return ADCRead = pins.i2cReadNumber(0x48, NumberFormat.UInt16BE, false)
+        }
+        else if (ADC_Version == 2) {
+            pins.i2cWriteNumber(0x4b, ADCRead, NumberFormat.UInt8LE, false)
+            return ADCRead = pins.i2cReadNumber(0x4b, NumberFormat.UInt8LE, false)
+        }
+        else {
+            return 0
+        }
     }
 
     //% group="Sensor and ADC"
