@@ -237,10 +237,18 @@ namespace PTKidsBIT {
             Read_ADC_Version = true
         }
 
-        pins.digitalWritePin(DigitalPin.P13, 1)
-        pins.analogWritePin(AnalogPin.P14, 0)
-        pins.digitalWritePin(DigitalPin.P15, 1)
-        pins.analogWritePin(AnalogPin.P16, 0)
+        if (ADC_Version == 1) {
+            pins.digitalWritePin(DigitalPin.P13, 1)
+            pins.analogWritePin(AnalogPin.P14, 0)
+            pins.digitalWritePin(DigitalPin.P15, 1)
+            pins.analogWritePin(AnalogPin.P16, 0)
+        }
+        else if (ADC_Version == 2) {
+            pins.analogWritePin(AnalogPin.P13, 1023)
+            pins.analogWritePin(AnalogPin.P14, 1023)
+            pins.analogWritePin(AnalogPin.P15, 1023)
+            pins.analogWritePin(AnalogPin.P16, 1023)
+        }
     }
 
     //% group="Motor Control"
@@ -262,23 +270,11 @@ namespace PTKidsBIT {
             Read_ADC_Version = true
         }
 
-        speed = pins.map(speed, 0, 100, 0, 1023)
-
         if (spin == _Spin.Left) {
-            pins.digitalWritePin(DigitalPin.P13, 0)
-            pins.analogWritePin(AnalogPin.P14, speed - 2)
-            pins.analogSetPeriod(AnalogPin.P14, 2000)
-            pins.digitalWritePin(DigitalPin.P15, 1)
-            pins.analogWritePin(AnalogPin.P16, speed)
-            pins.analogSetPeriod(AnalogPin.P16, 2000)
+            motorGo(-speed, speed)
         }
         else if (spin == _Spin.Right) {
-            pins.digitalWritePin(DigitalPin.P13, 1)
-            pins.analogWritePin(AnalogPin.P14, speed - 2)
-            pins.analogSetPeriod(AnalogPin.P14, 2000)
-            pins.digitalWritePin(DigitalPin.P15, 0)
-            pins.analogWritePin(AnalogPin.P16, speed)
-            pins.analogSetPeriod(AnalogPin.P16, 2000)
+            motorGo(speed, -speed)
         }
     }
 
@@ -301,23 +297,11 @@ namespace PTKidsBIT {
             Read_ADC_Version = true
         }
 
-        speed = pins.map(speed, 0, 100, 0, 1023)
-
         if (turn == _Turn.Left) {
-            pins.digitalWritePin(DigitalPin.P13, 0)
-            pins.analogWritePin(AnalogPin.P14, 0)
-            pins.analogSetPeriod(AnalogPin.P14, 2000)
-            pins.digitalWritePin(DigitalPin.P15, 1)
-            pins.analogWritePin(AnalogPin.P16, speed)
-            pins.analogSetPeriod(AnalogPin.P16, 2000)
+            motorGo(0, speed)
         }
         else if (turn == _Turn.Right) {
-            pins.digitalWritePin(DigitalPin.P13, 1)
-            pins.analogWritePin(AnalogPin.P14, speed - 2)
-            pins.analogSetPeriod(AnalogPin.P14, 2000)
-            pins.digitalWritePin(DigitalPin.P15, 0)
-            pins.analogWritePin(AnalogPin.P16, 0)
-            pins.analogSetPeriod(AnalogPin.P16, 2000)
+            motorGo(speed, 0)
         }
     }
 
@@ -341,29 +325,65 @@ namespace PTKidsBIT {
             Read_ADC_Version = true
         }
 
-        speed1 = pins.map(speed1, -100, 100, -1023, 1023)
-        speed2 = pins.map(speed2, -100, 100, -1023, 1023)
+        if (ADC_Version == 1) {
+            speed1 = pins.map(speed1, -100, 100, -1023, 1023)
+            speed2 = pins.map(speed2, -100, 100, -1023, 1023)
 
-        if (speed1 < 0) {
-            pins.digitalWritePin(DigitalPin.P13, 0)
-            pins.analogWritePin(AnalogPin.P14, -speed1 + 2)
-            pins.analogSetPeriod(AnalogPin.P14, 2000)
-        }
-        else if (speed1 >= 0) {
-            pins.digitalWritePin(DigitalPin.P13, 1)
-            pins.analogWritePin(AnalogPin.P14, speed1 - 2)
-            pins.analogSetPeriod(AnalogPin.P14, 2000)
-        }
+            if (speed1 < 0) {
+                pins.digitalWritePin(DigitalPin.P13, 0)
+                pins.analogWritePin(AnalogPin.P14, -speed1 + 2)
+                pins.analogSetPeriod(AnalogPin.P14, 2000)
+            }
+            else if (speed1 >= 0) {
+                pins.digitalWritePin(DigitalPin.P13, 1)
+                pins.analogWritePin(AnalogPin.P14, speed1 - 2)
+                pins.analogSetPeriod(AnalogPin.P14, 2000)
+            }
 
-        if (speed2 < 0) {
-            pins.digitalWritePin(DigitalPin.P15, 0)
-            pins.analogWritePin(AnalogPin.P16, -speed2)
-            pins.analogSetPeriod(AnalogPin.P16, 2000)
+            if (speed2 < 0) {
+                pins.digitalWritePin(DigitalPin.P15, 0)
+                pins.analogWritePin(AnalogPin.P16, -speed2)
+                pins.analogSetPeriod(AnalogPin.P16, 2000)
+            }
+            else if (speed2 >= 0) {
+                pins.digitalWritePin(DigitalPin.P15, 1)
+                pins.analogWritePin(AnalogPin.P16, speed2)
+                pins.analogSetPeriod(AnalogPin.P16, 2000)
+            }
         }
-        else if (speed2 >= 0) {
-            pins.digitalWritePin(DigitalPin.P15, 1)
-            pins.analogWritePin(AnalogPin.P16, speed2)
-            pins.analogSetPeriod(AnalogPin.P16, 2000)
+        else if (ADC_Version == 2) {
+            speed1 = pins.map(speed1, -100, 100, 1023, -1023)
+            speed2 = pins.map(speed2, -100, 100, 1023, -1023)
+
+            if (speed1 < 0) {
+                speed1 = pins.map(-speed1, 0, 1023, 1023, 0)
+                pins.analogWritePin(AnalogPin.P13, 1023)
+                pins.analogWritePin(AnalogPin.P14, speed1)
+                pins.analogSetPeriod(AnalogPin.P13, 2000)
+                pins.analogSetPeriod(AnalogPin.P14, 2000)
+            }
+            else if (speed1 >= 0) {
+                speed1 = pins.map(speed1, 0, 1023, 1023, 0)
+                pins.analogWritePin(AnalogPin.P14, 1023)
+                pins.analogWritePin(AnalogPin.P13, speed1)
+                pins.analogSetPeriod(AnalogPin.P14, 2000)
+                pins.analogSetPeriod(AnalogPin.P13, 2000)
+            }
+
+            if (speed2 < 0) {
+                speed2 = pins.map(-speed2, 0, 1023, 1023, 0)
+                pins.analogWritePin(AnalogPin.P15, 1023)
+                pins.analogWritePin(AnalogPin.P16, speed2)
+                pins.analogSetPeriod(AnalogPin.P15, 2000)
+                pins.analogSetPeriod(AnalogPin.P16, 2000)
+            }
+            else if (speed2 >= 0) {
+                speed2 = pins.map(speed2, 0, 1023, 1023, 0)
+                pins.analogWritePin(AnalogPin.P16, 1023)
+                pins.analogWritePin(AnalogPin.P15, speed2)
+                pins.analogSetPeriod(AnalogPin.P16, 2000)
+                pins.analogSetPeriod(AnalogPin.P15, 2000)
+            }
         }
     }
 
@@ -385,31 +405,69 @@ namespace PTKidsBIT {
             }
             Read_ADC_Version = true
         }
-        
-        speed = pins.map(speed, -100, 100, -1023, 1023)
 
-        if (motor == Motor_Write.Motor_1) {
-            if (speed < 0) {
-                pins.digitalWritePin(DigitalPin.P13, 0)
-                pins.analogWritePin(AnalogPin.P14, -speed + 2)
-                pins.analogSetPeriod(AnalogPin.P14, 2000)
+        if (ADC_Version == 1) {
+            speed = pins.map(speed, -100, 100, -1023, 1023)
+
+            if (motor == Motor_Write.Motor_1) {
+                if (speed < 0) {
+                    pins.digitalWritePin(DigitalPin.P13, 0)
+                    pins.analogWritePin(AnalogPin.P14, -speed + 2)
+                    pins.analogSetPeriod(AnalogPin.P14, 2000)
+                }
+                else if (speed >= 0) {
+                    pins.digitalWritePin(DigitalPin.P13, 1)
+                    pins.analogWritePin(AnalogPin.P14, speed - 2)
+                    pins.analogSetPeriod(AnalogPin.P14, 2000)
+                }
             }
-            else if (speed >= 0) {
-                pins.digitalWritePin(DigitalPin.P13, 1)
-                pins.analogWritePin(AnalogPin.P14, speed - 2)
-                pins.analogSetPeriod(AnalogPin.P14, 2000)
+            else if (motor == Motor_Write.Motor_2) {
+                if (speed < 0) {
+                    pins.digitalWritePin(DigitalPin.P15, 0)
+                    pins.analogWritePin(AnalogPin.P16, -speed)
+                    pins.analogSetPeriod(AnalogPin.P16, 2000)
+                }
+                else if (speed >= 0) {
+                    pins.digitalWritePin(DigitalPin.P15, 1)
+                    pins.analogWritePin(AnalogPin.P16, speed)
+                    pins.analogSetPeriod(AnalogPin.P16, 2000)
+                }
             }
         }
-        else if (motor == Motor_Write.Motor_2) {
-            if (speed < 0) {
-                pins.digitalWritePin(DigitalPin.P15, 0)
-                pins.analogWritePin(AnalogPin.P16, -speed)
-                pins.analogSetPeriod(AnalogPin.P16, 2000)
+        else if (ADC_Version == 2) {
+            speed = pins.map(speed, -100, 100, 1023, -1023)
+
+            if (motor == Motor_Write.Motor_1) {
+                if (speed < 0) {
+                    speed = pins.map(-speed, 0, 1023, 1023, 0)
+                    pins.analogWritePin(AnalogPin.P13, 1023)
+                    pins.analogWritePin(AnalogPin.P14, speed)
+                    pins.analogSetPeriod(AnalogPin.P13, 2000)
+                    pins.analogSetPeriod(AnalogPin.P14, 2000)
+                }
+                else if (speed >= 0) {
+                    speed = pins.map(speed, 0, 1023, 1023, 0)
+                    pins.analogWritePin(AnalogPin.P14, 1023)
+                    pins.analogWritePin(AnalogPin.P13, speed)
+                    pins.analogSetPeriod(AnalogPin.P14, 2000)
+                    pins.analogSetPeriod(AnalogPin.P13, 2000)
+                }
             }
-            else if (speed >= 0) {
-                pins.digitalWritePin(DigitalPin.P15, 1)
-                pins.analogWritePin(AnalogPin.P16, speed)
-                pins.analogSetPeriod(AnalogPin.P16, 2000)
+            else if (motor == Motor_Write.Motor_2) {
+                if (speed < 0) {
+                    speed = pins.map(-speed, 0, 1023, 1023, 0)
+                    pins.analogWritePin(AnalogPin.P15, 1023)
+                    pins.analogWritePin(AnalogPin.P16, speed)
+                    pins.analogSetPeriod(AnalogPin.P15, 2000)
+                    pins.analogSetPeriod(AnalogPin.P16, 2000)
+                }
+                else if (speed >= 0) {
+                    speed = pins.map(speed, 0, 1023, 1023, 0)
+                    pins.analogWritePin(AnalogPin.P16, 1023)
+                    pins.analogWritePin(AnalogPin.P15, speed)
+                    pins.analogSetPeriod(AnalogPin.P16, 2000)
+                    pins.analogSetPeriod(AnalogPin.P15, 2000)
+                }
             }
         }
     }
