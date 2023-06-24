@@ -1170,14 +1170,14 @@ namespace PTKidsBIT {
     /**
      * Set Value Sensor
      */
-    //% block="SETColorLine\n $line_center|Line Left\n\n\n\n $line_left|Line Right\n\n\n $line_right|SETColorFloor $floor_center|Floor Left\n\n\n $floor_left|Floor Right\n\n $floor_right"
-    export function ValueSensorSET(line_center: number[], line_left: number[], line_right: number[], floor_center: number[], floor_left: number[], floor_right: number[]): void {
+    //% block="SETColorLine\n $line_center|Line Left\n\n\n\n $line_left|Line Right\n\n\n $line_right|SETColorGround $ground_center|Ground Left\n\n\n $ground_left|Ground Right\n\n $ground_right"
+    export function ValueSensorSET(line_center: number[], line_left: number[], line_right: number[], ground_center: number[], ground_left: number[], ground_right: number[]): void {
         Color_Line = line_center
         Color_Line_Left = line_left
         Color_Line_Right = line_right
-        Color_Background = floor_center
-        Color_Background_Left = floor_left
-        Color_Background_Right = floor_right
+        Color_Background = ground_center
+        Color_Background_Left = ground_left
+        Color_Background_Right = ground_right
     }
 
     //% group="Line Follower"
