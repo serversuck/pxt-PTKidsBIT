@@ -389,27 +389,27 @@ namespace PTKidsBIT {
             if (speed1 < 0) {
                 pins.analogWritePin(AnalogPin.P13, 0)
                 pins.analogWritePin(AnalogPin.P14, -speed1)
-                pins.analogSetPeriod(AnalogPin.P13, 50)
-                pins.analogSetPeriod(AnalogPin.P14, 50)
+                pins.analogSetPeriod(AnalogPin.P13, 200)
+                pins.analogSetPeriod(AnalogPin.P14, 200)
             }
             else if (speed1 >= 0) {
                 pins.analogWritePin(AnalogPin.P14, 0)
                 pins.analogWritePin(AnalogPin.P13, speed1)
-                pins.analogSetPeriod(AnalogPin.P14, 50)
-                pins.analogSetPeriod(AnalogPin.P13, 50)
+                pins.analogSetPeriod(AnalogPin.P14, 200)
+                pins.analogSetPeriod(AnalogPin.P13, 200)
             }
 
             if (speed2 < 0) {
                 pins.analogWritePin(AnalogPin.P15, 0)
                 pins.analogWritePin(AnalogPin.P16, -speed2)
-                pins.analogSetPeriod(AnalogPin.P15, 50)
-                pins.analogSetPeriod(AnalogPin.P16, 50)
+                pins.analogSetPeriod(AnalogPin.P15, 200)
+                pins.analogSetPeriod(AnalogPin.P16, 200)
             }
             else if (speed2 >= 0) {
                 pins.analogWritePin(AnalogPin.P16, 0)
                 pins.analogWritePin(AnalogPin.P15, speed2)
-                pins.analogSetPeriod(AnalogPin.P16, 50)
-                pins.analogSetPeriod(AnalogPin.P15, 50)
+                pins.analogSetPeriod(AnalogPin.P16, 200)
+                pins.analogSetPeriod(AnalogPin.P15, 200)
             }
         }
     }
@@ -468,28 +468,28 @@ namespace PTKidsBIT {
                 if (speed < 0) {
                     pins.analogWritePin(AnalogPin.P13, 0)
                     pins.analogWritePin(AnalogPin.P14, -speed)
-                    pins.analogSetPeriod(AnalogPin.P13, 50)
-                    pins.analogSetPeriod(AnalogPin.P14, 50)
+                    pins.analogSetPeriod(AnalogPin.P13, 200)
+                    pins.analogSetPeriod(AnalogPin.P14, 200)
                 }
                 else if (speed >= 0) {
                     pins.analogWritePin(AnalogPin.P14, 0)
                     pins.analogWritePin(AnalogPin.P13, speed)
-                    pins.analogSetPeriod(AnalogPin.P14, 50)
-                    pins.analogSetPeriod(AnalogPin.P13, 50)
+                    pins.analogSetPeriod(AnalogPin.P14, 200)
+                    pins.analogSetPeriod(AnalogPin.P13, 200)
                 }
             }
             else if (motor == Motor_Write.Motor_2) {
                 if (speed < 0) {
                     pins.analogWritePin(AnalogPin.P15, 0)
                     pins.analogWritePin(AnalogPin.P16, -speed)
-                    pins.analogSetPeriod(AnalogPin.P15, 50)
-                    pins.analogSetPeriod(AnalogPin.P16, 50)
+                    pins.analogSetPeriod(AnalogPin.P15, 200)
+                    pins.analogSetPeriod(AnalogPin.P16, 200)
                 }
                 else if (speed >= 0) {
                     pins.analogWritePin(AnalogPin.P16, 0)
                     pins.analogWritePin(AnalogPin.P15, speed)
-                    pins.analogSetPeriod(AnalogPin.P16, 50)
-                    pins.analogSetPeriod(AnalogPin.P15, 50)
+                    pins.analogSetPeriod(AnalogPin.P16, 200)
+                    pins.analogSetPeriod(AnalogPin.P15, 200)
                 }
             }
         }
