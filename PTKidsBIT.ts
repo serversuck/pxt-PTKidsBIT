@@ -747,7 +747,7 @@ namespace PTKidsBIT {
         let error = 0
         let timer = 0
         let motor_speed = 0
-        let motor_slow = Math.round(speed / 4)
+        let motor_slow = Math.round(speed / 2)
         while (1) {
             on_line = 0
             for (let i = 0; i < Sensor_PIN.length; i++) {
