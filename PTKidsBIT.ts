@@ -751,7 +751,7 @@ namespace PTKidsBIT {
         while (1) {
             on_line = 0
             for (let i = 0; i < Sensor_PIN.length; i++) {
-                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 200) {
+                if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[i]]), Color_Line[i], Color_Background[i], 1000, 0)) >= 800) {
                     on_line += 1;
                 }
             }
@@ -769,7 +769,7 @@ namespace PTKidsBIT {
         }
         timer = control.millis()
         while (1) {
-            if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[adc_sensor_pin]]), Color_Line[adc_sensor_pin], Color_Background[adc_sensor_pin], 1000, 0)) >= 200) {
+            if ((pins.map(ADCRead(ADC_PIN[Sensor_PIN[adc_sensor_pin]]), Color_Line[adc_sensor_pin], Color_Background[adc_sensor_pin], 1000, 0)) >= 800) {
                 basic.pause(break_delay)
                 motorStop()
                 break
