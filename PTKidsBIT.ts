@@ -270,27 +270,11 @@ namespace PTKidsBIT {
             Read_ADC_Version = true
         }
 
-        if (ADC_Version == 1) {
-            if (spin == _Spin.Left) {
-                pins.digitalWritePin(DigitalPin.P13, 0)
-                pins.analogWritePin(AnalogPin.P14, speed)
-                pins.digitalWritePin(DigitalPin.P15, 1)
-                pins.analogWritePin(AnalogPin.P16, speed)
-            }
-            else if (spin == _Spin.Right) {
-                pins.digitalWritePin(DigitalPin.P13, 1)
-                pins.analogWritePin(AnalogPin.P14, speed)
-                pins.digitalWritePin(DigitalPin.P15, 0)
-                pins.analogWritePin(AnalogPin.P16, speed)
-            }
+        if (spin == _Spin.Left) {
+            motorGo(-speed, speed)
         }
-        else if (ADC_Version == 2) {
-            if (spin == _Spin.Left) {
-                motorGo(-speed, speed)
-            }
-            else if (spin == _Spin.Right) {
-                motorGo(speed, -speed)
-            }
+        else if (spin == _Spin.Right) {
+            motorGo(speed, -speed)
         }
     }
 
@@ -312,27 +296,12 @@ namespace PTKidsBIT {
             }
             Read_ADC_Version = true
         }
-        if (ADC_Version == 1) {
-            if (turn == _Turn.Left) {
-                pins.digitalWritePin(DigitalPin.P13, 0)
-                pins.analogWritePin(AnalogPin.P14, 0)
-                pins.digitalWritePin(DigitalPin.P15, 1)
-                pins.analogWritePin(AnalogPin.P16, speed)
-            }
-            else if (turn == _Turn.Right) {
-                pins.digitalWritePin(DigitalPin.P13, 1)
-                pins.analogWritePin(AnalogPin.P14, speed)
-                pins.digitalWritePin(DigitalPin.P15, 0)
-                pins.analogWritePin(AnalogPin.P16, 0)
-            }
+        
+        if (turn == _Turn.Left) {
+            motorGo(0, speed)
         }
-        else if (ADC_Version == 2) {
-            if (turn == _Turn.Left) {
-                motorGo(0, speed)
-            }
-            else if (turn == _Turn.Right) {
-                motorGo(speed, 0)
-            }
+        else if (turn == _Turn.Right) {
+            motorGo(speed, 0)
         }
     }
 
