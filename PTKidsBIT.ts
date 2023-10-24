@@ -238,16 +238,18 @@ namespace PTKidsBIT {
         }
 
         if (ADC_Version == 1) {
-            pins.digitalWritePin(DigitalPin.P13, 1)
-            pins.analogWritePin(AnalogPin.P14, 0)
-            pins.digitalWritePin(DigitalPin.P15, 1)
-            pins.analogWritePin(AnalogPin.P16, 0)
+            // pins.digitalWritePin(DigitalPin.P13, 1)
+            // pins.analogWritePin(AnalogPin.P14, 0)
+            // pins.digitalWritePin(DigitalPin.P15, 1)
+            // pins.analogWritePin(AnalogPin.P16, 0)
+            motorGo(0, 0)
         }
         else if (ADC_Version == 2) {
-            pins.analogWritePin(AnalogPin.P13, 1023)
-            pins.analogWritePin(AnalogPin.P14, 1023)
-            pins.analogWritePin(AnalogPin.P15, 1023)
-            pins.analogWritePin(AnalogPin.P16, 1023)
+            // pins.analogWritePin(AnalogPin.P13, 1023)
+            // pins.analogWritePin(AnalogPin.P14, 1023)
+            // pins.analogWritePin(AnalogPin.P15, 1023)
+            // pins.analogWritePin(AnalogPin.P16, 1023)
+            motorGo(0, 0)
         }
     }
 
