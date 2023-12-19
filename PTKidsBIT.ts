@@ -333,12 +333,12 @@ namespace PTKidsBIT {
 
             if (speed1 < 0) {
                 pins.digitalWritePin(DigitalPin.P13, 0)
-                pins.analogWritePin(AnalogPin.P14, -speed1 + 2)
+                pins.analogWritePin(AnalogPin.P14, -speed1)
                 pins.analogSetPeriod(AnalogPin.P14, 2000)
             }
             else if (speed1 >= 0) {
                 pins.digitalWritePin(DigitalPin.P13, 1)
-                pins.analogWritePin(AnalogPin.P14, speed1 - 2)
+                pins.analogWritePin(AnalogPin.P14, speed1)
                 pins.analogSetPeriod(AnalogPin.P14, 2000)
             }
 
