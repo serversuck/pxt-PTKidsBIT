@@ -1,27 +1,14 @@
 {
-    "name": "pxt-PTKidsBIT",
-    "version": "2.2.11",
-    "description": "",
-    "license": "MIT",
-    "dependencies": {
-        "core": "*"
-    },
-    "files": [
-        "README.md",
-        "PTKidsBIT.ts",
-        "main.py",
-        "main.ts"
-    ],
-    "testFiles": [
-        "test.ts"
-    ],
-    "public": true,
-    "targetVersions": {
-        "target": "6.0.25",
-        "targetId": "microbit"
-    },
-    "supportedTargets": [
-        "microbit"
-    ],
-    "preferredEditor": "tsprj"
+  "name": "pxt-PTKidsBIT-ble",
+  "description": "PTKidsBIT (BLE-safe): motor/servo/ADC only",
+  "dependencies": {
+    "core": "*",
+    "bluetooth": "*"
+  },
+  "files": [
+    "PTKidsBIT.ts",
+    "README.md"
+  ],
+  "public": true,
+  "license": "MIT"
 }
