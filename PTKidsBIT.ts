@@ -1,32 +1,28 @@
 /**
- * PTKidsBIT (modded) — minimal, stable, servo-safe
- * - ปรับได้ที่ CONFIG ด้านล่าง ถ้าบอร์ดแมปขาไม่ตรง
- * - เซอร์โวใช้ 50Hz (20ms) + pulse 500–2500us
- * - แยก helper map สำหรับ S1/S2 และ Motor A/B
+ * PTKidsBIT (modded, clean v2)
+ * - Servo 50Hz (20ms), pulse 500–2500us
+ * - ปรับขา S1/S2, Motor, Ultrasonic ได้ทั้งในไฟล์หรือผ่านบล็อก map
  */
 
 namespace PTKidsBIT {
-    // ======= CONFIG: ปรับตามบอร์ดของคุณ =======
-    // Servo ports (S1/S2) -> AnalogPin
-    const SERVO_S1: AnalogPin = AnalogPin.P8;   // เปลี่ยนถ้าบอร์ดคุณใช้ขาอื่น
-    const SERVO_S2: AnalogPin = AnalogPin.P12;  // เปลี่ยนถ้าบอร์ดคุณใช้ขาอื่น
+    // ======= CONFIG (แก้ตรงนี้ถ้าบอร์ด map ขาไม่ตรง) =======
+    // ใช้ let เพื่อให้ map…() เปลี่ยนค่าได้
+    let SERVO_S1: AnalogPin = AnalogPin.P8;
+    let SERVO_S2: AnalogPin = AnalogPin.P12;
 
-    // Motor driver (สองพินต่อมอเตอร์; ใช้ PWM ที่พิน *_PWM ถ้ามี)
-    // โหมด AIN1/AIN2 แบบ H-bridge มาตรฐาน
-    const M1_IN1: DigitalPin = DigitalPin.P13;
-    const M1_IN2: DigitalPin = DigitalPin.P14;
-    const M1_PWM: AnalogPin  = AnalogPin.P1;    // ถ้าไม่มีสาย PWM แยก ใช้ IN1/IN2 แบบ on/off
+    let M1_IN1: DigitalPin = DigitalPin.P13;
+    let M1_IN2: DigitalPin = DigitalPin.P14;
+    let M1_PWM: AnalogPin  = AnalogPin.P1;
 
-    const M2_IN1: DigitalPin = DigitalPin.P15;
-    const M2_IN2: DigitalPin = DigitalPin.P16;
-    const M2_PWM: AnalogPin  = AnalogPin.P2;
+    let M2_IN1: DigitalPin = DigitalPin.P15;
+    let M2_IN2: DigitalPin = DigitalPin.P16;
+    let M2_PWM: AnalogPin  = AnalogPin.P2;
 
-    // Ultrasonic default pins (Trig/Echo) — ปรับตามบอร์ด
-    const US_TRIG: DigitalPin = DigitalPin.P0;
-    const US_ECHO: DigitalPin = DigitalPin.P11;
-    // ===========================================
+    let US_TRIG: DigitalPin = DigitalPin.P0;
+    let US_ECHO: DigitalPin = DigitalPin.P11;
+    // ===============================================
 
-    // ======= ENUMS (สำหรับบล็อก) =======
+    // ======= ENUMS =======
     export enum Motor {
         //% block="M1"
         M1 = 1,
@@ -53,15 +49,18 @@ namespace PTKidsBIT {
         return Math.max(lo, Math.min(hi, v));
     }
 
-    // ปิดลำโพงออนบอร์ด (micro:bit V2) เพื่อไม่ให้ชน P0 เวลาใช้เสียง/servo
-    // ให้ผู้ใช้เรียกใน on start ถ้าจำเป็น
-    //% blockId=ptk_init block="PTKidsBIT init (disable speaker on V2)"
-    export function init() {
-        // try/catch กันคอมไพล์กับ V1
-        // @ts-ignore
-        if ((music as any)?.setBuiltInSpeakerEnabled) {
-            // @ts-ignore
-            music.setBuiltInSpeakerEnabled(false);
+    function map01(x: number, inMin: number, inMax: number, outMin: number, outMax: number) {
+        const t = (x - inMin) / (inMax - inMin);
+        return outMin + t * (outMax - outMin);
+    }
+
+    // (เลือกใช้เมื่อจำเป็น) ปิดลำโพงออนบอร์ด V2 ถ้าจะใช้ P0
+    //% blockId=ptk_disable_speaker block="disable built-in speaker (V2)"
+    export function disableBuiltInSpeaker() {
+        // ใช้ index access เพื่อลด type error บน V1
+        const anyMusic = music as any;
+        if (anyMusic && typeof anyMusic["setBuiltInSpeakerEnabled"] === "function") {
+            anyMusic["setBuiltInSpeakerEnabled"](false);
         }
     }
 
@@ -69,7 +68,7 @@ namespace PTKidsBIT {
     function servoPulseUs_(pin: AnalogPin, pulse: number) {
         pins.analogSetPeriod(pin, 20000); // 20ms = 50Hz
         const p = clamp(pulse, 500, 2500);
-        const duty = p / 20000;          // 500..2500 over 20000
+        const duty = p / 20000;          // 0..1
         pins.analogWritePin(pin, Math.round(duty * 1023));
     }
 
@@ -83,8 +82,7 @@ namespace PTKidsBIT {
     }
 
     function portToServoPin(port: ServoPort): AnalogPin {
-        if (port == ServoPort.S1) return SERVO_S1;
-        return SERVO_S2;
+        return (port == ServoPort.S1) ? SERVO_S1 : SERVO_S2;
     }
 
     //% blockId=ptk_servo_angle_port
@@ -94,7 +92,7 @@ namespace PTKidsBIT {
         servoAnglePin(portToServoPin(port), angle);
     }
 
-    // ======= MOTOR (H-bridge basic + PWM speed) =======
+    // ======= MOTOR (H-bridge + PWM) =======
     function motorPins(m: Motor): { in1: DigitalPin, in2: DigitalPin, pwm: AnalogPin } {
         if (m == Motor.M1) return { in1: M1_IN1, in2: M1_IN2, pwm: M1_PWM };
         return { in1: M2_IN1, in2: M2_IN2, pwm: M2_PWM };
@@ -111,8 +109,8 @@ namespace PTKidsBIT {
         pins.digitalWritePin(pinsMap.in1, dir == Direction.Forward ? 1 : 0);
         pins.digitalWritePin(pinsMap.in2, dir == Direction.Forward ? 0 : 1);
 
-        // PWM (0..1023)
-        const duty = Math.map(s, 0, 100, 0, 1023);
+        // PWM 0..1023
+        const duty = Math.round(map01(s, 0, 100, 0, 1023));
         pins.analogWritePin(pinsMap.pwm, duty);
     }
 
@@ -146,45 +144,29 @@ namespace PTKidsBIT {
         pins.digitalWritePin(US_TRIG, 0);
 
         const d = pins.pulseIn(US_ECHO, PulseValue.High, 30000); // timeout ~30ms
-        // ความเร็วเสียง ≈ 340 m/s -> 29.1 us ต่อ cm (ไป-กลับ /2)
         const cm = d / 58; // มาตรฐาน MakeCode
         return cm > 0 ? cm : 0;
     }
 
-    // ======= ADV: ปรับ mapping ผ่านบล็อก (ถ้าบอร์ดคุณขาไม่ตรง) =======
-    // (ส่วนนี้ optional เผื่ออยากเปลี่ยนจาก UI)
+    // ======= MAP PINS (บล็อกสำหรับแก้ mapping จาก UI) =======
     //% blockId=ptk_map_servo block="map servo S1 %s1|S2 %s2"
     export function mapServoPins(s1: AnalogPin, s2: AnalogPin) {
-        // @ts-ignore
-        (SERVO_S1 as any) = s1;
-        // @ts-ignore
-        (SERVO_S2 as any) = s2;
+        SERVO_S1 = s1;
+        SERVO_S2 = s2;
     }
 
     //% blockId=ptk_map_motor block="map motor %motor|IN1 %in1|IN2 %in2|PWM %pwm"
     export function mapMotorPins(motor: Motor, in1: DigitalPin, in2: DigitalPin, pwm: AnalogPin) {
         if (motor == Motor.M1) {
-            // @ts-ignore
-            (M1_IN1 as any) = in1;
-            // @ts-ignore
-            (M1_IN2 as any) = in2;
-            // @ts-ignore
-            (M1_PWM as any) = pwm;
+            M1_IN1 = in1; M1_IN2 = in2; M1_PWM = pwm;
         } else {
-            // @ts-ignore
-            (M2_IN1 as any) = in1;
-            // @ts-ignore
-            (M2_IN2 as any) = in2;
-            // @ts-ignore
-            (M2_PWM as any) = pwm;
+            M2_IN1 = in1; M2_IN2 = in2; M2_PWM = pwm;
         }
     }
 
     //% blockId=ptk_map_ultra block="map ultrasonic TRIG %trig|ECHO %echo"
     export function mapUltrasonicPins(trig: DigitalPin, echo: DigitalPin) {
-        // @ts-ignore
-        (US_TRIG as any) = trig;
-        // @ts-ignore
-        (US_ECHO as any) = echo;
+        US_TRIG = trig;
+        US_ECHO = echo;
     }
 }
