@@ -1,239 +1,190 @@
-//% color=#ff7f00 icon="\uf1b9" block="PTKidsBIT (BLE-safe)"
-//% groups='["Motor","Motion","Servo","ADC","Utils"]'
+/**
+ * PTKidsBIT (modded) — minimal, stable, servo-safe
+ * - ปรับได้ที่ CONFIG ด้านล่าง ถ้าบอร์ดแมปขาไม่ตรง
+ * - เซอร์โวใช้ 50Hz (20ms) + pulse 500–2500us
+ * - แยก helper map สำหรับ S1/S2 และ Motor A/B
+ */
+
 namespace PTKidsBIT {
+    // ======= CONFIG: ปรับตามบอร์ดของคุณ =======
+    // Servo ports (S1/S2) -> AnalogPin
+    const SERVO_S1: AnalogPin = AnalogPin.P8;   // เปลี่ยนถ้าบอร์ดคุณใช้ขาอื่น
+    const SERVO_S2: AnalogPin = AnalogPin.P12;  // เปลี่ยนถ้าบอร์ดคุณใช้ขาอื่น
 
-    // ========= Pin Mapping (ปรับได้ตามบอร์ดจริง) =========
-    // มอเตอร์ชุดซ้าย/ขวา: ขา direction = digital, ขา speed = PWM
-    const DIR1 = DigitalPin.P13
-    const PWM1 = AnalogPin.P14
-    const DIR2 = DigitalPin.P15
-    const PWM2 = AnalogPin.P16
+    // Motor driver (สองพินต่อมอเตอร์; ใช้ PWM ที่พิน *_PWM ถ้ามี)
+    // โหมด AIN1/AIN2 แบบ H-bridge มาตรฐาน
+    const M1_IN1: DigitalPin = DigitalPin.P13;
+    const M1_IN2: DigitalPin = DigitalPin.P14;
+    const M1_PWM: AnalogPin  = AnalogPin.P1;    // ถ้าไม่มีสาย PWM แยก ใช้ IN1/IN2 แบบ on/off
 
-    // ที่อยู่ ADC ภายนอก (เช่น ADS7828 / PCF8591 เป็นต้น) — ตัวอย่างตั้งไว้ 0x48
-    const ADC_I2C_ADDR = 0x48
+    const M2_IN1: DigitalPin = DigitalPin.P15;
+    const M2_IN2: DigitalPin = DigitalPin.P16;
+    const M2_PWM: AnalogPin  = AnalogPin.P2;
 
-    // ========= Enums สำหรับบล็อก =========
-    //% blockId=ptkb_motor_write_enum block="motor"
-    export enum Motor_Write {
-        //% block="Motor 1"
-        Motor_1 = 1,
-        //% block="Motor 2"
-        Motor_2 = 2
+    // Ultrasonic default pins (Trig/Echo) — ปรับตามบอร์ด
+    const US_TRIG: DigitalPin = DigitalPin.P0;
+    const US_ECHO: DigitalPin = DigitalPin.P11;
+    // ===========================================
+
+    // ======= ENUMS (สำหรับบล็อก) =======
+    export enum Motor {
+        //% block="M1"
+        M1 = 1,
+        //% block="M2"
+        M2 = 2
     }
 
-    //% blockId=ptkb_turn_enum block="direction"
-    export enum _Turn {
-        //% block="Left"
-        Left = 0,
-        //% block="Right"
-        Right = 1
+    export enum Direction {
+        //% block="forward"
+        Forward = 0,
+        //% block="backward"
+        Backward = 1
     }
 
-    //% blockId=ptkb_spin_enum block="direction"
-    export enum _Spin {
-        //% block="Left"
-        Left = 0,
-        //% block="Right"
-        Right = 1
+    export enum ServoPort {
+        //% block="S1"
+        S1 = 1,
+        //% block="S2"
+        S2 = 2
     }
 
-    //% blockId=ptkb_servo_enum block="servo pin"
-    export enum Servo_Write {
-        //% block="P8"
-        P8 = 8,
-        //% block="P12"
-        P12 = 12
+    // ======= UTILS =======
+    function clamp(v: number, lo: number, hi: number) {
+        return Math.max(lo, Math.min(hi, v));
     }
 
-    // ========= Utilities ภายใน =========
-    function clamp100(v: number): number {
-        if (v > 100) return 100
-        if (v < -100) return -100
-        return (v | 0)
+    // ปิดลำโพงออนบอร์ด (micro:bit V2) เพื่อไม่ให้ชน P0 เวลาใช้เสียง/servo
+    // ให้ผู้ใช้เรียกใน on start ถ้าจำเป็น
+    //% blockId=ptk_init block="PTKidsBIT init (disable speaker on V2)"
+    export function init() {
+        // try/catch กันคอมไพล์กับ V1
+        // @ts-ignore
+        if ((music as any)?.setBuiltInSpeakerEnabled) {
+            // @ts-ignore
+            music.setBuiltInSpeakerEnabled(false);
+        }
     }
 
-    function speedToDuty(speed: number): number {
-        // speed -100..100 -> duty 0..1023
-        const s = Math.abs(clamp100(speed))
-        return Math.map(s, 0, 100, 0, 1023) | 0
+    // ======= SERVO (50Hz, 500–2500us) =======
+    function servoPulseUs_(pin: AnalogPin, pulse: number) {
+        pins.analogSetPeriod(pin, 20000); // 20ms = 50Hz
+        const p = clamp(pulse, 500, 2500);
+        const duty = p / 20000;          // 500..2500 over 20000
+        pins.analogWritePin(pin, Math.round(duty * 1023));
     }
 
-    function motor1(dirForward: boolean, speed: number) {
-        pins.digitalWritePin(DIR1, dirForward ? 1 : 0)
-        pins.analogWritePin(PWM1, speedToDuty(speed))
+    //% blockId=ptk_servo_angle_pin
+    //% block="servo pin %pin|angle %angle"
+    //% angle.min=0 angle.max=180
+    export function servoAnglePin(pin: AnalogPin, angle: number) {
+        const a = clamp(angle, 0, 180);
+        const pulse = 500 + (a / 180) * 2000;
+        servoPulseUs_(pin, pulse);
     }
 
-    function motor2(dirForward: boolean, speed: number) {
-        pins.digitalWritePin(DIR2, dirForward ? 1 : 0)
-        pins.analogWritePin(PWM2, speedToDuty(speed))
+    function portToServoPin(port: ServoPort): AnalogPin {
+        if (port == ServoPort.S1) return SERVO_S1;
+        return SERVO_S2;
     }
 
-    // ========= Motor Controls =========
+    //% blockId=ptk_servo_angle_port
+    //% block="servo %port|angle %angle"
+    //% angle.min=0 angle.max=180
+    export function servoAngle(port: ServoPort, angle: number) {
+        servoAnglePin(portToServoPin(port), angle);
+    }
 
-    /**
-     * Drive a single motor (1 or 2). Speed -100..100 (sign = direction)
-     */
-    //% group="Motor"
-    //% block="motorWrite %m speed %speed"
-    //% speed.min=-100 speed.max=100 speed.defl=60
-    //% weight=100
-    export function motorWrite(m: Motor_Write, speed: number) {
-        speed = clamp100(speed)
-        if (m == Motor_Write.Motor_1) {
-            motor1(speed >= 0, Math.abs(speed))
+    // ======= MOTOR (H-bridge basic + PWM speed) =======
+    function motorPins(m: Motor): { in1: DigitalPin, in2: DigitalPin, pwm: AnalogPin } {
+        if (m == Motor.M1) return { in1: M1_IN1, in2: M1_IN2, pwm: M1_PWM };
+        return { in1: M2_IN1, in2: M2_IN2, pwm: M2_PWM };
+    }
+
+    //% blockId=ptk_motor_run
+    //% block="run %motor|%dir|speed %speed"
+    //% speed.min=0 speed.max=100
+    export function run(motor: Motor, dir: Direction, speed: number) {
+        const pinsMap = motorPins(motor);
+        const s = clamp(speed, 0, 100);
+
+        // ทิศทาง
+        pins.digitalWritePin(pinsMap.in1, dir == Direction.Forward ? 1 : 0);
+        pins.digitalWritePin(pinsMap.in2, dir == Direction.Forward ? 0 : 1);
+
+        // PWM (0..1023)
+        const duty = Math.map(s, 0, 100, 0, 1023);
+        pins.analogWritePin(pinsMap.pwm, duty);
+    }
+
+    //% blockId=ptk_motor_stop
+    //% block="stop %motor"
+    export function stop(motor: Motor) {
+        const pinsMap = motorPins(motor);
+        pins.digitalWritePin(pinsMap.in1, 0);
+        pins.digitalWritePin(pinsMap.in2, 0);
+        pins.analogWritePin(pinsMap.pwm, 0);
+    }
+
+    //% blockId=ptk_motor_brake
+    //% block="brake %motor"
+    export function brake(motor: Motor) {
+        const pinsMap = motorPins(motor);
+        // short brake
+        pins.digitalWritePin(pinsMap.in1, 1);
+        pins.digitalWritePin(pinsMap.in2, 1);
+        pins.analogWritePin(pinsMap.pwm, 0);
+    }
+
+    // ======= ULTRASONIC (Trig/Echo แยกขา) =======
+    //% blockId=ptk_ultra_read block="ultrasonic (cm)"
+    export function ultrasonicCM(): number {
+        pins.setPull(US_TRIG, PinPullMode.PullNone);
+        pins.digitalWritePin(US_TRIG, 0);
+        control.waitMicros(2);
+        pins.digitalWritePin(US_TRIG, 1);
+        control.waitMicros(10);
+        pins.digitalWritePin(US_TRIG, 0);
+
+        const d = pins.pulseIn(US_ECHO, PulseValue.High, 30000); // timeout ~30ms
+        // ความเร็วเสียง ≈ 340 m/s -> 29.1 us ต่อ cm (ไป-กลับ /2)
+        const cm = d / 58; // มาตรฐาน MakeCode
+        return cm > 0 ? cm : 0;
+    }
+
+    // ======= ADV: ปรับ mapping ผ่านบล็อก (ถ้าบอร์ดคุณขาไม่ตรง) =======
+    // (ส่วนนี้ optional เผื่ออยากเปลี่ยนจาก UI)
+    //% blockId=ptk_map_servo block="map servo S1 %s1|S2 %s2"
+    export function mapServoPins(s1: AnalogPin, s2: AnalogPin) {
+        // @ts-ignore
+        (SERVO_S1 as any) = s1;
+        // @ts-ignore
+        (SERVO_S2 as any) = s2;
+    }
+
+    //% blockId=ptk_map_motor block="map motor %motor|IN1 %in1|IN2 %in2|PWM %pwm"
+    export function mapMotorPins(motor: Motor, in1: DigitalPin, in2: DigitalPin, pwm: AnalogPin) {
+        if (motor == Motor.M1) {
+            // @ts-ignore
+            (M1_IN1 as any) = in1;
+            // @ts-ignore
+            (M1_IN2 as any) = in2;
+            // @ts-ignore
+            (M1_PWM as any) = pwm;
         } else {
-            motor2(speed >= 0, Math.abs(speed))
+            // @ts-ignore
+            (M2_IN1 as any) = in1;
+            // @ts-ignore
+            (M2_IN2 as any) = in2;
+            // @ts-ignore
+            (M2_PWM as any) = pwm;
         }
     }
 
-    /**
-     * Drive both motors at once. m1: -100..100 , m2: -100..100
-     */
-    //% group="Motor"
-    //% block="motorGo m1 %m1 m2 %m2"
-    //% m1.min=-100 m1.max=100 m1.defl=60
-    //% m2.min=-100 m2.max=100 m2.defl=60
-    //% weight=95
-    export function motorGo(m1: number, m2: number) {
-        m1 = clamp100(m1)
-        m2 = clamp100(m2)
-        motor1(m1 >= 0, Math.abs(m1))
-        motor2(m2 >= 0, Math.abs(m2))
-    }
-
-    /**
-     * Stop both motors (PWM=0)
-     */
-    //% group="Motor"
-    //% block="motorStop"
-    //% weight=90
-    export function motorStop() {
-        pins.analogWritePin(PWM1, 0)
-        pins.analogWritePin(PWM2, 0)
-    }
-
-    // ========= Motion Helpers =========
-
-    /**
-     * Turn by stopping one side and running the other.
-     */
-    //% group="Motion"
-    //% block="turn %dir speed %speed"
-    //% speed.min=0 speed.max=100 speed.defl=60
-    //% weight=80
-    export function Turn(dir: _Turn, speed: number) {
-        speed = Math.constrain(speed | 0, 0, 100)
-        if (dir == _Turn.Left) {
-            motor1(false, 0)
-            motor2(true, speed)
-        } else {
-            motor1(true, speed)
-            motor2(false, 0)
-        }
-    }
-
-    /**
-     * Spin in place (motors in opposite directions).
-     */
-    //% group="Motion"
-    //% block="spin %dir speed %speed"
-    //% speed.min=0 speed.max=100 speed.defl=60
-    //% weight=75
-    export function Spin(dir: _Spin, speed: number) {
-        speed = Math.constrain(speed | 0, 0, 100)
-        if (dir == _Spin.Left) {
-            motor1(false, speed)
-            motor2(true, speed)
-        } else {
-            motor1(true, speed)
-            motor2(false, speed)
-        }
-    }
-
-    // ========= Servo =========
-
-    /**
-     * Write servo (0..180) on pin P8 or P12.
-     */
-    //% group="Servo"
-    //% block="servoWrite pin %p degree %deg"
-    //% deg.min=0 deg.max=180 deg.defl=90
-    //% weight=70
-    export function servoWrite(p: Servo_Write, deg: number) {
-        deg = Math.constrain(deg | 0, 0, 180)
-        if (p == Servo_Write.P8) {
-            pins.servoWritePin(AnalogPin.P8, deg)
-        } else {
-            pins.servoWritePin(AnalogPin.P12, deg)
-        }
-    }
-
-    /**
-     * Disable servo PWM on the selected pin (free the pin).
-     */
-    //% group="Servo"
-    //% block="servoStop pin %p"
-    //% weight=65
-    export function servoStop(p: Servo_Write) {
-        if (p == Servo_Write.P8) {
-            pins.digitalWritePin(DigitalPin.P8, 0)
-        } else {
-            pins.digitalWritePin(DigitalPin.P12, 0)
-        }
-    }
-
-    // ========= ADC (Optional via I²C) =========
-    // หมายเหตุ: ถ้าบอร์ดไม่มี ADC ภายนอก ฟังก์ชันนี้จะคืน 0 ไว้ก่อน
-    // หากใช้ ADS7828/PCF8591 ให้ปรับโค้ดตามดาต้าชีทได้
-
-    /**
-     * Read external ADC channel (0..7) over I²C (address 0x48 by default).
-     * Returns 0..4095 if 12-bit ADC (adjust per chip), or 0 if not available.
-     */
-    //% group="ADC"
-    //% block="ADCRead channel %ch"
-    //% ch.min=0 ch.max=7 ch.defl=0
-    //% weight=60
-    export function ADCRead(ch: number): number {
-        ch = Math.constrain(ch | 0, 0, 7)
-        // --- ตัวอย่างเรียกอ่านสไตล์ทั่วไป (ต้องปรับตามชิปจริง) ---
-        // สำหรับ ADS7828: control byte = 0x84 | (ch<<4) โดยประมาณ (ดูดาต้าชีท)
-        // หมายเหตุ: โค้ดนี้เป็น placeholder ให้แก้ตามชิปที่บอร์ดใช้จริง
-        try {
-            let controlByte = (0x80 | 0x04 | ((ch & 0x07) << 4)) & 0xFF
-            pins.i2cWriteNumber(ADC_I2C_ADDR, controlByte, NumberFormat.UInt8BE)
-            // อ่าน 2 ไบต์ (12-bit -> ชิพอาจจัดรูปแบบต่างกัน)
-            let raw = pins.i2cReadNumber(ADC_I2C_ADDR, NumberFormat.UInt16BE)
-            return raw & 0x0FFF // ตัดให้เหลือ 12 บิต
-        } catch (e) {
-            // ถ้าไม่มีอุปกรณ์/อ่านไม่สำเร็จ ให้คืน 0
-            return 0
-        }
-    }
-
-    // ========= Utils =========
-
-    /**
-     * Quick brake both motors (sets PWM=0 immediately).
-     */
-    //% group="Utils"
-    //% block="quickBrake"
-    //% weight=50
-    export function quickBrake() {
-        pins.analogWritePin(PWM1, 0)
-        pins.analogWritePin(PWM2, 0)
-    }
-
-    /**
-     * Coast both motors (release DIR + PWM low)
-     */
-    //% group="Utils"
-    //% block="coast"
-    //% weight=45
-    export function coast() {
-        pins.digitalWritePin(DIR1, 0)
-        pins.digitalWritePin(DIR2, 0)
-        pins.analogWritePin(PWM1, 0)
-        pins.analogWritePin(PWM2, 0)
+    //% blockId=ptk_map_ultra block="map ultrasonic TRIG %trig|ECHO %echo"
+    export function mapUltrasonicPins(trig: DigitalPin, echo: DigitalPin) {
+        // @ts-ignore
+        (US_TRIG as any) = trig;
+        // @ts-ignore
+        (US_ECHO as any) = echo;
     }
 }
